@@ -1,12 +1,12 @@
 {
   "name": "smartgym-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "SmartGym API",
   "main": "index.js",
-"scripts": {
-  "start": "node src/app.js",
-  "dev": "nodemon src/app.js"
-},
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,5 +21,13 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/laboratorio-1-2026-1/lab1-proyecto-2026-1-31.025.923-31.066.236-31.195.152.git"
+  },
+  "bugs": {
+    "url": "https://github.com/laboratorio-1-2026-1/lab1-proyecto-2026-1-31.025.923-31.066.236-31.195.152/issues"
+  },
+  "homepage": "https://github.com/laboratorio-1-2026-1/lab1-proyecto-2026-1-31.025.923-31.066.236-31.195.152#readme"
 }
