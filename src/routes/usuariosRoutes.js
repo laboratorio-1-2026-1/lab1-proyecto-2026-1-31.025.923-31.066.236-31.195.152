@@ -1,0 +1,12 @@
+const express = require('express');
+const router = express.Router();
+const usuariosController = require('../controllers/usuariosController');
+const { verificarToken, esAdmin } = require('../middlewares/authMiddleware');
+
+router.post('/clientes', usuariosController.registerCliente);
+router.post('/entrenadores', verificarToken, esAdmin, usuariosController.createEntrenador);
+router.post('/usuarios/staff', verificarToken, esAdmin, usuariosController.createStaff);
+router.get('/usuarios', verificarToken, esAdmin, usuariosController.listUsuarios);
+router.get('/roles', verificarToken, esAdmin, usuariosController.listRoles);
+
+module.exports = router;
