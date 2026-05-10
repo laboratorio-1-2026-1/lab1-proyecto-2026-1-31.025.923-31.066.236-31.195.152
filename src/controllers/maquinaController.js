@@ -35,4 +35,30 @@ const createMaquina = async (req, res) => {
     }
 };
 
-module.exports = { getMaquinas, createMaquina };
+// Actualizar estado de una máquina
+const updateMaquinaEstado = async (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!estado) {
+        return res.status(400).json({ error: 'El campo estado es obligatorio.' });
+    }
+
+    try {
+        // Verificar si la máquina existe
+        const [existing] = await db.query('SELECT id_maquinas FROM Maquinas WHERE id_maquinas = ? LIMIT 1', [id]);
+        if (existing.length === 0) {
+            return res.status(404).json({ error: 'Máquina no encontrada.' });
+        }
+
+        // Actualizar el estado
+        await db.query('UPDATE Maquinas SET estado = ? WHERE id_maquinas = ?', [estado, id]);
+
+        res.json({ message: 'Estado de la máquina actualizado con éxito.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error al actualizar el estado de la máquina.' });
+    }
+};
+
+module.exports = { getMaquinas, createMaquina, updateMaquinaEstado };
