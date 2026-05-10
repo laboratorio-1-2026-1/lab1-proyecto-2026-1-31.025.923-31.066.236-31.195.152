@@ -5,6 +5,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const maquinaRoutes = require('./routes/maquinaRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
+const categoriasRoutes = require('./routes/categoriasRoutes');
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/maquinas', maquinaRoutes);
 app.use('/api/v1', usuariosRoutes);
+app.use('/api/v1', categoriasRoutes);
 
 app.get('/', (req, res) => {
     res.send('Servidor SmartGym V1 corriendo');
