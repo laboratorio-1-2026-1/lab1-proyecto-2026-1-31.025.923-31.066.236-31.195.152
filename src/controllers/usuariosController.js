@@ -23,7 +23,7 @@ const registerCliente = async (req, res) => {
             return res.status(409).json({ error: 'El email o la cédula ya están registrados.' });
         }
 
-        const roleId = await getRoleIdByName('Cliente') || 3;
+        const roleId = await getRoleIdByName('Cliente') || 4;
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -61,7 +61,7 @@ const createEntrenador = async (req, res) => {
             return res.status(409).json({ error: 'El email o la cédula ya están registrados.' });
         }
 
-        const roleId = await getRoleIdByName('Entrenador') || 2;
+        const roleId = await getRoleIdByName('Entrenador') || 3;
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 

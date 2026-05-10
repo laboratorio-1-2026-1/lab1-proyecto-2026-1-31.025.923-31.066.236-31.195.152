@@ -26,4 +26,24 @@ const esAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin };
+// Middleware adicional para verificar roles específicos AGREGADO POR CALO CALITO CALO
+const esEntrenadorOAdmin = (req, res, next) => {
+    // Roles: 1=Administrador, 3=Entrenador
+    if (req.user && (req.user.id_rol === 1 || req.user.id_rol === 3)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Requiere rol de Entrenador o Administración.' });
+    }
+};
+// Middleware adicional para verificar roles específicos AGREGADO POR CALO CALITO CALO
+const esClienteOAdmin = (req, res, next) => {
+    // Roles: 1=Administrador, 4=Cliente
+    if (req.user && (req.user.id_rol === 1 || req.user.id_rol === 4)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Requiere rol de Cliente o Administración.' });
+    }
+};
+
+module.exports = { verificarToken, esAdmin, esEntrenadorOAdmin, esClienteOAdmin }; // TAMBIEN SE EXPORTAN ACA LOS NUEVOS MIDDLEWARES AGREGADOS POR CALO CALITO CALO
+
