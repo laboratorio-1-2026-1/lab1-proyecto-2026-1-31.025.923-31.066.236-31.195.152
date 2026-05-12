@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const maquinaRoutes = require('./routes/maquinaRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const gestionDeportivaRoutes = require('./routes/gestionDeportivaRoutes'); // AÑADIDO POR CALO CALITO CALO
+const accesoRoutes = require('./routes/accesoRoutes'); // AÑADIDO POR CALO CALITO CALO
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/maquinas', maquinaRoutes);
 app.use('/api/v1', usuariosRoutes);
 app.use('/api/v1', gestionDeportivaRoutes); // AÑADIDO POR CALO CALITO CALO
-
+app.use('/api/v1', accesoRoutes); // AÑADIDO POR CALO CALITO CALO
 app.get('/', (req, res) => {
     res.send('Servidor SmartGym V1 corriendo');
 });
