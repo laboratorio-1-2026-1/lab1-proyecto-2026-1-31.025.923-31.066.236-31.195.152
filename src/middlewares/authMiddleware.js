@@ -26,4 +26,13 @@ const esAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin };
+const esAdminofinanzas = (req, res, next) => {
+    // Según tu DB, el ID 1 suele ser Administración
+    if (req.user && req.user.id_rol === 1 || req.user && req.user.id_rol === 4) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Solo Administración.' });
+    }
+};
+
+module.exports = { verificarToken, esAdmin, esAdminofinanzas };
