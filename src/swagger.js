@@ -327,8 +327,6 @@ swaggerSpec.paths = {
                                 id_usuario: { type: 'number', example: 1 },
                                 fecha_falla: { type: 'string', format: 'date', example: '2026-05-12' },
                                 descripcion_falla: { type: 'string', example: 'Motor no arranca' },
-                                fecha_resolucion: { type: 'string', format: 'date', example: '2026-05-13' },
-                                costo_reparacion: { type: 'number', example: 50 },
                                 estado: { type: 'string', example: 'En mantenimiento' }
                             },
                             required: ['id_maquina', 'id_usuario', 'descripcion_falla']
@@ -339,6 +337,41 @@ swaggerSpec.paths = {
             responses: {
                 '201': { description: 'Ticket creado' },
                 '404': { description: 'Máquina no encontrada' }
+            }
+        }
+    },
+    '/tickets/{id}/resolver': {
+        patch: {
+            tags: ['Tickets'],
+            summary: 'Resolver un ticket de mantenimiento (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer' }
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                fecha_resolucion: { type: 'string', format: 'date', example: '2026-05-13' },
+                                costo_reparacion: { type: 'number', example: 150 }
+                            },
+                            required: ['fecha_resolucion', 'costo_reparacion']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '200': { description: 'Ticket resuelto y máquina actualizada a Activa' },
+                '400': { description: 'Datos inválidos o incompletos' },
+                '404': { description: 'Ticket o máquina no encontrada' }
             }
         }
     }

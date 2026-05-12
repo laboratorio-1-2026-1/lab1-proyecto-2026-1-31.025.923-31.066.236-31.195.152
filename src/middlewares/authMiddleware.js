@@ -26,4 +26,13 @@ const esAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin };
+const esAdminOFinanzas = (req, res, next) => {
+    // Administración o Finanzas pueden resolver tickets
+    if (req.user && [1, 4].includes(req.user.id_rol)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Solo Administración o Finanzas.' });
+    }
+};
+
+module.exports = { verificarToken, esAdmin, esAdminOFinanzas };
