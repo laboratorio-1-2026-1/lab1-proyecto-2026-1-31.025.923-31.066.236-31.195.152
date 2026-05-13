@@ -95,7 +95,7 @@ swaggerSpec.paths = {
     '/auth/register': {
         post: {
             tags: ['Auth'],
-            summary: 'Registrar un usuario (solo admin)',
+            summary: 'Registrar un usuario (solo admin, ultimo campo especialidad solo necesario para entrenadores)',
             security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
@@ -104,13 +104,18 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_rol: { type: 'number', example: 2 },
+                                id_rol: { type: 'number', example: 3 },
                                 cedula: { type: 'string', example: '12345678' },
                                 nombre: { type: 'string', example: 'Juan' },
                                 apellido: { type: 'string', example: 'Pérez' },
                                 email: { type: 'string', example: 'juan@correo.com' },
                                 password: { type: 'string', example: '123456' },
-                                telefono: { type: 'string', example: '987654321' }
+                                telefono: { type: 'string', example: '987654321' },
+                                especialidad: { 
+                                    type: 'string', 
+                                    example: 'Nutrición',
+                                    description: 'Solo necesario si id_rol === 3 (Entrenador)' 
+                                }
                             },
                             required: ['id_rol', 'cedula', 'nombre', 'apellido', 'email', 'password', 'telefono']
                         }
@@ -126,9 +131,27 @@ swaggerSpec.paths = {
     '/maquinas': {
         get: {
             tags: ['Maquinas'],
-            summary: 'Obtener todas las máquinas',
+            summary: 'Obtener inventario físico de máquinas (solo Administración, Entrenadores, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'estado',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string' },
+                    description: 'Filtrar por estado de la máquina'
+                },
+                {
+                    name: 'categoria',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string' },
+                    description: 'Filtrar por categoría de máquina (nombre o id)' 
+                }
+            ],
             responses: {
-                '200': { description: 'Lista de máquinas' },
+                '200': { description: 'Inventario físico de máquinas' },
+                '403': { description: 'Permisos insuficientes' },
                 '500': { description: 'Error al obtener máquinas' }
             }
         },

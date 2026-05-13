@@ -1,13 +1,41 @@
 const db = require('../config/db');
 
-// Obtener todas las máquinas
+// Obtener inventario físico de máquinas
 const getMaquinas = async (req, res) => {
+    const { estado, categoria } = req.query;
+
     try {
-        // Hacemos una consulta a la tabla que ya tienes creada
-        const [rows] = await db.query('SELECT * FROM Maquinas');
+        const whereClauses = [];
+        const params = [];
+
+        if (estado) {
+            whereClauses.push('m.estado = ?');
+            params.push(estado);
+        }
+
+        if (categoria) {
+            if (/^\d+$/.test(categoria)) {
+                whereClauses.push('m.id_categoria = ?');
+                params.push(Number(categoria));
+            } else {
+                whereClauses.push('c.nombre_categoria = ?');
+                params.push(categoria);
+            }
+        }
+
+        const whereSql = whereClauses.length ? `WHERE ${whereClauses.join(' AND ')}` : '';
+        const sql = `
+            SELECT m.*, c.nombre_categoria AS categoria_nombre
+            FROM Maquinas m
+            LEFT JOIN categoriasmaquinas c ON m.id_categoria = c.id_categoria
+            ${whereSql}
+        `;
+
+        const [rows] = await db.query(sql, params);
         res.json(rows);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener máquinas' });
+        console.error(error);
+        res.status(500).json({ error: 'Error al obtener el inventario físico de máquinas.' });
     }
 };
 

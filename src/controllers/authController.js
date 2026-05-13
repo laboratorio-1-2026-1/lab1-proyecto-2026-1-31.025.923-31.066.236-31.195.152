@@ -3,7 +3,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
-    const { id_rol, cedula, nombre, apellido, email, password, telefono } = req.body;
+    const { id_rol, cedula, nombre, apellido, email, password, telefono, especialidad } = req.body;
+
+    if (!id_rol || !cedula || !nombre || !apellido || !email || !password || !telefono) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios: id_rol, cedula, nombre, apellido, email, password y telefono.' });
+    }
+
+    if (id_rol === 3 && !especialidad) {
+        return res.status(400).json({ error: 'La especialidad es obligatoria para entrenadores.' });
+    }
 
     try {
         // Encriptar la contraseña
@@ -16,7 +24,15 @@ const register = async (req, res) => {
             [id_rol, cedula, nombre, apellido, email, hashedPassword, telefono]
         );
 
-        res.status(201).json({ message: 'Usuario registrado con éxito', id_usuario: result.insertId });
+        const idUsuario = result.insertId;
+
+        if (id_rol === 4) {
+            await db.query('INSERT INTO Clientes (id_usuario) VALUES (?)', [idUsuario]);
+        } else if (id_rol === 3) {
+            await db.query('INSERT INTO Entrenadores (id_usuario, especialidad) VALUES (?, ?)', [idUsuario, especialidad]);
+        }
+
+        res.status(201).json({ message: 'Usuario registrado con éxito', id_usuario: idUsuario });
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al registrar usuario. Verifique si el email o cédula ya existen.' });
