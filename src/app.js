@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const maquinaRoutes = require('./routes/maquinaRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const planRoutes = require('./routes/planRoutes');
+const membresiasRoutes = require('./routes/membresiasRoutes');
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/maquinas', maquinaRoutes);
 app.use('/api/v1', usuariosRoutes);
 app.use('/api/v1/planes', planRoutes);
+app.use('/api/v1/membresias', membresiasRoutes)
+
 
 app.get('/', (req, res) => {
     res.send('Servidor SmartGym V1 corriendo');
