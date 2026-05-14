@@ -169,7 +169,7 @@ swaggerSpec.paths = {
                                 id_categoria: { type: 'number', example: 1 },
                                 nombre_maquina: { type: 'string', example: 'Cinta de correr' },
                                 descripcion_tecnica: { type: 'string', example: 'Motor 2 HP, velocidad ajustable' },
-                                estado: { type: 'string', example: 'Operativa' }
+                                estado: { type: 'string', example: 'Activa' }
                             },
                             required: ['id_categoria', 'nombre_maquina', 'descripcion_tecnica', 'estado']
                         }
