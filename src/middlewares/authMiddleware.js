@@ -26,6 +26,24 @@ const esAdmin = (req, res, next) => {
     }
 };
 
+const esAdminOFinanzas = (req, res, next) => {
+    // Administración o Finanzas pueden resolver tickets
+    if (req.user && [1, 4].includes(req.user.id_rol)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Solo Administración o Finanzas.' });
+    }
+};
+
+const esAdminEntrenadorFinanzas = (req, res, next) => {
+    // Administración, Entrenadores, Finanzas
+    if (req.user && [1, 3, 4].includes(req.user.id_rol)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Solo Administración, Entrenadores o Finanzas.' });
+    }
+};
+
 // Middleware adicional para verificar roles específicos AGREGADO POR CALO CALITO CALO
 const esEntrenadorOAdmin = (req, res, next) => {
     // Roles: 1=Administrador, 3=Entrenador
@@ -45,5 +63,4 @@ const esClienteOAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin, esEntrenadorOAdmin, esClienteOAdmin }; // TAMBIEN SE EXPORTAN ACA LOS NUEVOS MIDDLEWARES AGREGADOS POR CALO CALITO CALO
-
+module.exports = { verificarToken, esAdmin, esAdminOFinanzas, esAdminEntrenadorFinanzas, esEntrenadorOAdmin, esClienteOAdmin };

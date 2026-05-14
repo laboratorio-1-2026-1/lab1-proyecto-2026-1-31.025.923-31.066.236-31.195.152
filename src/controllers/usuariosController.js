@@ -1,6 +1,13 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
 const getRoleIdByName = async (roleName) => {
     const [rows] = await db.query('SELECT id_rol FROM Roles WHERE nombre_rol = ? LIMIT 1', [roleName]);
     return rows.length ? rows[0].id_rol : null;
@@ -15,12 +22,12 @@ const registerCliente = async (req, res) => {
     const { cedula, nombre, apellido, email, password, telefono } = req.body;
 
     if (!cedula || !nombre || !apellido || !email || !password || !telefono) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios para el registro de cliente.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Todos los campos son obligatorios..."));
     }
 
     try {
         if (await userExists(cedula, email)) {
-            return res.status(409).json({ error: 'El email o la cédula ya están registrados.' });
+            return res.status(409).json(generarError("ERR_DUPLICADO", "El email o la cédula ya están registrados."));
         }
 
         const roleId = await getRoleIdByName('Cliente') || 4;
@@ -45,7 +52,7 @@ const registerCliente = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al registrar cliente.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al registrar cliente."));
     }
 };
 
@@ -53,12 +60,12 @@ const createEntrenador = async (req, res) => {
     const { cedula, nombre, apellido, email, password, telefono, especialidad } = req.body;
 
     if (!cedula || !nombre || !apellido || !email || !password || !telefono || !especialidad) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios para crear un entrenador.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Todos los campos son obligatorios para crear un entrenador."));
     }
 
     try {
         if (await userExists(cedula, email)) {
-            return res.status(409).json({ error: 'El email o la cédula ya están registrados.' });
+            return res.status(409).json(generarError("ERR_DUPLICADO", "El email o la cédula ya están registrados."));
         }
 
         const roleId = await getRoleIdByName('Entrenador') || 3;
@@ -83,7 +90,7 @@ const createEntrenador = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al crear entrenador.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al crear entrenador."));
     }
 };
 
@@ -91,12 +98,12 @@ const createStaff = async (req, res) => {
     const { id_rol, cedula, nombre, apellido, email, password, telefono } = req.body;
 
     if (!id_rol || !cedula || !nombre || !apellido || !email || !password || !telefono) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios para crear un staff.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Todos los campos son obligatorios para crear un staff."));
     }
 
     try {
         if (await userExists(cedula, email)) {
-            return res.status(409).json({ error: 'El email o la cédula ya están registrados.' });
+            return res.status(409).json(generarError("ERR_DUPLICADO", "El email o la cédula ya están registrados."));
         }
 
         const [roleRows] = await db.query('SELECT nombre_rol FROM Roles WHERE id_rol = ? LIMIT 1', [id_rol]);
@@ -104,11 +111,11 @@ const createStaff = async (req, res) => {
         const allowedRoles = ['Administración', 'Admin', 'Finanzas', 'Finanzas'];
 
         if (!roleName && id_rol !== 1 && id_rol !== 4) {
-            return res.status(400).json({ error: 'Solo se pueden crear cuentas de Administración o Finanzas.' });
+            return res.status(400).json(generarError("ERR_ROL_NO_PERMITIDO", "Solo se pueden crear cuentas de Administración o Finanzas."));
         }
 
         if (roleName && !allowedRoles.includes(roleName)) {
-            return res.status(400).json({ error: 'Solo se pueden crear cuentas de Administración o Finanzas.' });
+            return res.status(400).json(generarError("ERR_ROL_NO_PERMITIDO", "Solo se pueden crear cuentas de Administración o Finanzas."));
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -122,7 +129,7 @@ const createStaff = async (req, res) => {
         res.status(201).json({ message: 'Cuenta de staff creada con éxito', id_usuario: usuarioResult.insertId });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al crear cuenta de staff.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al crear cuenta de staff."));
     }
 };
 
@@ -134,7 +141,7 @@ const listUsuarios = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al listar usuarios.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al listar usuarios."));
     }
 };
 
@@ -144,7 +151,7 @@ const listRoles = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al listar roles.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al listar roles."));
     }
 };
 
