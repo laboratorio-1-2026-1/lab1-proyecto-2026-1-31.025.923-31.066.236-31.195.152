@@ -43,7 +43,7 @@ const createTicket = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al crear ticket de falla.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al crear el ticket de mantenimiento. Verifique los datos ingresados."));
     }
 };
 
@@ -90,7 +90,7 @@ const resolveTicket = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al resolver el ticket.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al resolver el ticket."));
     }
 };
 

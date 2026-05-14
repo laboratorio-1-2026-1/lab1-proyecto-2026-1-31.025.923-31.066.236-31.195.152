@@ -42,7 +42,7 @@ const register = async (req, res) => {
         res.status(201).json({ message: 'Usuario registrado con éxito', id_usuario: idUsuario });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al registrar usuario. Verifique si el email o cédula ya existen.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al registrar usuario. Verifique si el email o cédula ya existen."));
     }
 };
 

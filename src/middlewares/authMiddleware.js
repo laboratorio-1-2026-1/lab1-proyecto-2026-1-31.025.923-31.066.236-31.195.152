@@ -28,7 +28,7 @@ const esAdmin = (req, res, next) => {
 
 const esAdminOFinanzas = (req, res, next) => {
     // Administración o Finanzas pueden resolver tickets
-    if (req.user && [1, 4].includes(req.user.id_rol)) {
+    if (req.user && [1, 2].includes(req.user.id_rol)) {
         next();
     } else {
         res.status(403).json({ error: 'Permisos insuficientes. Solo Administración o Finanzas.' });
@@ -37,7 +37,7 @@ const esAdminOFinanzas = (req, res, next) => {
 
 const esAdminEntrenadorFinanzas = (req, res, next) => {
     // Administración, Entrenadores, Finanzas
-    if (req.user && [1, 3, 4].includes(req.user.id_rol)) {
+    if (req.user && [1, 3, 2].includes(req.user.id_rol)) {
         next();
     } else {
         res.status(403).json({ error: 'Permisos insuficientes. Solo Administración, Entrenadores o Finanzas.' });

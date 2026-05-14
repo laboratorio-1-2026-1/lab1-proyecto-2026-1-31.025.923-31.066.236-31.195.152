@@ -36,7 +36,7 @@ const getAccesos = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al consultar la bitácora de accesos.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener los registros de acceso."));
     }
 };
 
@@ -93,7 +93,7 @@ const registrarEntrada = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al procesar el control de acceso.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al procesar el control de acceso."));
     }
 };
 

@@ -15,7 +15,7 @@ const getDisciplinas = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener disciplinas.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener disciplinas."));
     }
 };
 
@@ -49,7 +49,7 @@ const getSesiones = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener sesiones.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener sesiones."));
     }
 };
 
@@ -85,7 +85,7 @@ const createSesion = async (req, res) => {
         res.status(201).json({ message: 'Sesión programada con éxito', id_sesion: result.insertId });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al programar la sesión.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al programar sesión. Verifique los datos ingresados."));
     }
 };
 
@@ -104,8 +104,8 @@ const getReservas = async (req, res) => {
         if (req.user.id_rol === 4) { 
             // Necesitamos buscar el id_cliente asociado al id_usuario del token
             const [cliente] = await db.query('SELECT id_cliente FROM Clientes WHERE id_usuario = ?', [req.user.id_usuario]);
-            if (!cliente.length) return res.status(404).json({ error: 'Perfil de cliente no encontrado' });
-            
+            if (!cliente.length) return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Perfil de cliente no encontrado"));
+
             query += ' WHERE r.id_cliente = ?';
             params.push(cliente[0].id_cliente);
         } else if (req.query.id_cliente) {
@@ -117,7 +117,7 @@ const getReservas = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener reservas.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener reservas."));
     }
 };
 
@@ -170,7 +170,7 @@ const createReserva = async (req, res) => {
         res.status(201).json({ message: 'Reserva confirmada con éxito', id_reserva: result.insertId });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al procesar la reserva.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al procesar la reserva."));
     }
 };
 
@@ -193,7 +193,7 @@ const deleteReserva = async (req, res) => {
         res.json({ message: 'Reserva cancelada correctamente. Cupo liberado.' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al cancelar la reserva.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al cancelar la reserva."));
     }
 };
 
