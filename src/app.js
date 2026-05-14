@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');//YOGE
+const swaggerSpec = require('./swagger');//YOGE
 require('dotenv').config();
+
 
 const authRoutes = require('./routes/authRoutes');
 const maquinaRoutes = require('./routes/maquinaRoutes');
@@ -12,6 +15,8 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));//YOGE
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/maquinas', maquinaRoutes);
