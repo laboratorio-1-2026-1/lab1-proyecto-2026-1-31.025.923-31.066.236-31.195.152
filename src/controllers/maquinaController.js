@@ -1,5 +1,13 @@
 const db = require('../config/db');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
+
 // Obtener inventario físico de máquinas
 const getMaquinas = async (req, res) => {
     const { estado, categoria } = req.query;
@@ -35,7 +43,7 @@ const getMaquinas = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el inventario físico de máquinas.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener el inventario físico de máquinas."));
     }
 };
 
@@ -44,7 +52,7 @@ const createMaquina = async (req, res) => {
     const { id_categoria, nombre_maquina, descripcion_tecnica, estado } = req.body;
 
     if (!id_categoria || !nombre_maquina || !descripcion_tecnica || !estado) {
-        return res.status(400).json({ error: 'Todos los campos son obligatorios: id_categoria, nombre, descripcion_tecnica, estado.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Los campos id_categoria, nombre_maquina, descripcion_tecnica y estado son obligatorios."));
     }
 
     try {
@@ -59,7 +67,7 @@ const createMaquina = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al registrar máquina.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al registrar máquina."));
     }
 };
 
@@ -69,14 +77,14 @@ const updateMaquinaEstado = async (req, res) => {
     const { estado } = req.body;
 
     if (!estado) {
-        return res.status(400).json({ error: 'El campo estado es obligatorio.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "El campo estado es obligatorio."));
     }
 
     try {
         // Verificar si la máquina existe
         const [existing] = await db.query('SELECT id_maquinas FROM Maquinas WHERE id_maquinas = ? LIMIT 1', [id]);
         if (existing.length === 0) {
-            return res.status(404).json({ error: 'Máquina no encontrada.' });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Máquina no encontrada."));
         }
 
         // Actualizar el estado
@@ -85,7 +93,7 @@ const updateMaquinaEstado = async (req, res) => {
         res.json({ message: 'Estado de la máquina actualizado con éxito.' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al actualizar el estado de la máquina.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al actualizar el estado de la máquina."));
     }
 };
 

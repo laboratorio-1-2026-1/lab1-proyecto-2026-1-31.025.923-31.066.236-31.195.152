@@ -1,10 +1,18 @@
 const db = require('../config/db');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
+
 const createTicket = async (req, res) => {
     const { id_maquina, id_usuario, fecha_falla, descripcion_falla, estado} = req.body;
 
     if (!id_maquina || !id_usuario || !descripcion_falla) {
-        return res.status(400).json({ error: 'id_maquina, id_usuario y descripcion_falla son obligatorios.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "id_maquina, id_usuario y descripcion_falla son obligatorios."));
     }
 
     const allowedMachineStates = ['En mantenimiento', 'Fuera de Servicio'];
@@ -15,7 +23,7 @@ const createTicket = async (req, res) => {
     try {
         const [machineRows] = await db.query('SELECT id_maquinas FROM Maquinas WHERE id_maquinas = ? LIMIT 1', [id_maquina]);
         if (machineRows.length === 0) {
-            return res.status(404).json({ error: 'Máquina no encontrada.' });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Máquina no encontrada."));
         }
 
         const ticketDate = fecha_falla || new Date().toISOString().slice(0, 10);
@@ -35,7 +43,7 @@ const createTicket = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al crear ticket de falla.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al crear el ticket de mantenimiento. Verifique los datos ingresados."));
     }
 };
 
@@ -44,7 +52,7 @@ const resolveTicket = async (req, res) => {
     const { fecha_resolucion, costo_reparacion } = req.body;
 
     if (!fecha_resolucion || costo_reparacion == null) {
-        return res.status(400).json({ error: 'fecha_resolucion y costo_reparacion son obligatorios.' });
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "fecha_resolucion y costo_reparacion son obligatorios para resolver el ticket."));
     }
 
     try {
@@ -54,7 +62,7 @@ const resolveTicket = async (req, res) => {
         );
 
         if (ticketRows.length === 0) {
-            return res.status(404).json({ error: 'Ticket no encontrado.' });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Ticket no encontrado."));
         }
 
         const ticket = ticketRows[0];
@@ -71,7 +79,7 @@ const resolveTicket = async (req, res) => {
         );
 
         if (machineResult.affectedRows === 0) {
-            return res.status(404).json({ error: 'Máquina asociada no encontrada.' });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Máquina asociada no encontrada."));
         }
 
         res.json({
@@ -82,7 +90,7 @@ const resolveTicket = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al resolver el ticket.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al resolver el ticket."));
     }
 };
 

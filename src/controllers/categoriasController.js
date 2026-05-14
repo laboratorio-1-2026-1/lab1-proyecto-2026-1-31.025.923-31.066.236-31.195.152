@@ -6,7 +6,7 @@ const getCategoriasMaquinas = async (req, res) => {
         res.json(rows);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al obtener el catálogo de categorías de máquinas.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener el catálogo de categorías de máquinas."));
     }
 };
 
