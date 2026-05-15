@@ -1,7 +1,7 @@
 const express = require('express');
 const rutaMembresias = express.Router();
 const controladorMembresias = require('../controllers/membresiasController')
-const {verificartoken, esAdminoFinanzas} = require('../middlewares/authMiddleware')
+const {verificartoken, esAdminoOFinanzas} = require('../middlewares/authMiddleware')
 
 rutaMembresias.post('/', controladorMembresias.registrarmem)
 

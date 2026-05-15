@@ -2,8 +2,23 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
 const register = async (req, res) => {
-    const { id_rol, cedula, nombre, apellido, email, password, telefono } = req.body;
+    const { id_rol, cedula, nombre, apellido, email, password, telefono, especialidad } = req.body;
+
+    if (!id_rol || !cedula || !nombre || !apellido || !email || !password || !telefono) {
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Todos los campos son obligatorios: id_rol, cedula, nombre, apellido, email, password y telefono."));
+    }
+
+    if (id_rol === 3 && !especialidad) {
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "La especialidad es obligatoria para entrenadores."));
+    }
 
     try {
         // Encriptar la contraseña
@@ -16,10 +31,18 @@ const register = async (req, res) => {
             [id_rol, cedula, nombre, apellido, email, hashedPassword, telefono]
         );
 
-        res.status(201).json({ message: 'Usuario registrado con éxito', id_usuario: result.insertId });
+        const idUsuario = result.insertId;
+
+        if (id_rol === 4) {
+            await db.query('INSERT INTO Clientes (id_usuario) VALUES (?)', [idUsuario]);
+        } else if (id_rol === 3) {
+            await db.query('INSERT INTO Entrenadores (id_usuario, especialidad) VALUES (?, ?)', [idUsuario, especialidad]);
+        }
+
+        res.status(201).json({ message: 'Usuario registrado con éxito', id_usuario: idUsuario });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error al registrar usuario. Verifique si el email o cédula ya existen.' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al registrar usuario. Verifique si el email o cédula ya existen."));
     }
 };
 
@@ -31,7 +54,7 @@ const login = async (req, res) => {
         const [rows] = await db.query('SELECT * FROM Usuarios WHERE email = ?', [email]);
         
         if (rows.length === 0) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Usuario no encontrado"));
         }
 
         const usuario = rows[0];
@@ -39,7 +62,7 @@ const login = async (req, res) => {
         // Comparar contraseña encriptada
         const validPassword = await bcrypt.compare(password, usuario.password);
         if (!validPassword) {
-            return res.status(401).json({ error: 'Contraseña incorrecta' });
+            return res.status(401).json(generarError("ERR_CREDENCIALES_INVALIDAS", "Contraseña incorrecta"));
         }
 
         // Crear Token JWT
@@ -58,7 +81,7 @@ const login = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({ error: 'Error en el servidor durante el login' });
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error en el servidor durante el login"));
     }
 };
 
