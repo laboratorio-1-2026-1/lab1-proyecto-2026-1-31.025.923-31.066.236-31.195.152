@@ -35,6 +35,15 @@ const esAdminOFinanzas = (req, res, next) => {
     }
 };
 
+const esAdminFinanzasOCliente = (req, res, next) => {
+    // Administración, Finanzas o Cliente
+    if (req.user && [1, 2, 4].includes(req.user.id_rol)) {
+        next();
+    } else {
+        res.status(403).json({ error: 'Permisos insuficientes. Solo Administración, Finanzas o Cliente.' });
+    }
+};
+
 const esAdminEntrenadorFinanzas = (req, res, next) => {
     // Administración, Entrenadores, Finanzas
     if (req.user && [1, 3, 2].includes(req.user.id_rol)) {
@@ -63,4 +72,4 @@ const esClienteOAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin, esAdminOFinanzas, esAdminEntrenadorFinanzas, esEntrenadorOAdmin, esClienteOAdmin };
+module.exports = { verificarToken, esAdmin, esAdminOFinanzas, esAdminFinanzasOCliente, esAdminEntrenadorFinanzas, esEntrenadorOAdmin, esClienteOAdmin };
