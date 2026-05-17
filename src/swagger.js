@@ -45,6 +45,26 @@ const options = {
                         }
                     }
                 },
+                Membresia: {
+                    type: 'object',
+                    properties: {
+                        id_membresias: { type: 'integer', example: 1 },
+                        id_cliente: { type: 'integer', example: 2 },
+                        id_plan: { type: 'integer', example: 1 },
+                        fecha_inicio: { type: 'string', format: 'date', example: '2026-05-10' },
+                        estado: { type: 'string', example: 'Activa' }
+                    }
+                },
+                Pago: {
+                    type: 'object',
+                    properties: {
+                        id_pagos: { type: 'integer', example: 1 },
+                        id_membresia: { type: 'integer', example: 1 },
+                        id_cliente: { type: 'integer', example: 2 },
+                        monto: { type: 'number', format: 'decimal', example: 120.00 },
+                        fecha_pago: { type: 'string', format: 'date', example: '2026-05-16' }
+                    }
+                },
                 ErrorResponse: {
                     type: 'object',
                     properties: {
@@ -536,6 +556,238 @@ swaggerSpec.paths = {
     // ==========================================
     // MÓDULO DE CONTROL DE ACCESO FÍSICO
     // ==========================================
+    '/membresias': {
+        get: {
+            tags: ['Membresías'],
+            summary: 'Lista las membresías globales (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'estado',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string', example: 'Activa' },
+                    description: 'Filtrar membresías por estado'
+                }
+            ],
+            responses: {
+                '200': {
+                    description: 'Listado de membresías',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: { $ref: '#/components/schemas/Membresia' }
+                            }
+                        }
+                    }
+                },
+                '403': { description: 'Permisos insuficientes. Solo Administración o Finanzas' },
+                '500': { description: 'Error al obtener membresías' }
+            }
+        },
+        post: {
+            tags: ['Membresías'],
+            summary: 'Registra una nueva membresía (Administración)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                id_cliente: { type: 'integer', example: 2 },
+                                id_plan: { type: 'integer', example: 1 }
+                            },
+                            required: ['id_cliente', 'id_plan']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': {
+                    description: 'Membresía registrada',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    message: { type: 'string' },
+                                    id_membresias: { type: 'integer' },
+                                    id_cliente: { type: 'integer' },
+                                    id_plan: { type: 'integer' }
+                                }
+                            }
+                        }
+                    }
+                },
+                '400': { description: 'Datos incompletos' },
+                '403': { description: 'Permisos insuficientes. Solo Administración' },
+                '404': { description: 'Cliente o plan no encontrado' },
+                '500': { description: 'Error al registrar la membresía' }
+            }
+        }
+    },
+    '/membresias/cliente/{id}': {
+        get: {
+            tags: ['Membresías'],
+            summary: 'Consulta el estado actual de la membresía de un cliente específico (Administración, Finanzas, Cliente)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer', example: 1 },
+                    description: 'ID del cliente'
+                }
+            ],
+            responses: {
+                '200': {
+                    description: 'Membresía del cliente encontrada',
+                    content: {
+                        'application/json': {
+                            schema: { $ref: '#/components/schemas/Membresia' }
+                        }
+                    }
+                },
+                '403': { description: 'Permisos insuficientes. Solo Administración, Finanzas o Cliente' },
+                '404': { description: 'Membresía no encontrada para el cliente especificado' },
+                '500': { description: 'Error al obtener la membresía del cliente' }
+            }
+        }
+    },
+    '/membresias/{id}/estado': {
+        patch: {
+            tags: ['Membresías'],
+            summary: 'Revoca o suspende una membresía de forma manual por excepciones (Administración)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer', example: 1 },
+                    description: 'ID de la membresía'
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                estado: { type: 'string', example: 'Suspendida' }
+                            },
+                            required: ['estado']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '200': {
+                    description: 'Estado de membresía actualizado con éxito',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    message: { type: 'string' },
+                                    id_membresias: { type: 'integer', example: 1 },
+                                    estado: { type: 'string', example: 'Suspendida' }
+                                }
+                            }
+                        }
+                    }
+                },
+                '400': { description: 'Estado faltante o inválido' },
+                '403': { description: 'Permisos insuficientes. Solo Administración' },
+                '404': { description: 'No se encontró la membresía especificada' },
+                '500': { description: 'Error al actualizar el estado de la membresía' }
+            }
+        }
+    },
+    '/pagos': {
+        get: {
+            tags: ['Pagos'],
+            summary: 'Retorna el historial de transacciones financieras con filtros por fechas y cliente (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'fecha_desde',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string', format: 'date', example: '2026-05-01' },
+                    description: 'Fecha de inicio para el filtro de pagos (inclusive)'
+                },
+                {
+                    name: 'fecha_hasta',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string', format: 'date', example: '2026-05-31' },
+                    description: 'Fecha de fin para el filtro de pagos (inclusive)'
+                },
+                {
+                    name: 'id_cliente',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'integer', example: 2 },
+                    description: 'ID del cliente para filtrar pagos asociados a su membresía'
+                }
+            ],
+            responses: {
+                '200': {
+                    description: 'Historial de pagos filtrado',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: { $ref: '#/components/schemas/Pago' }
+                            }
+                        }
+                    }
+                },
+                '403': { description: 'Permisos insuficientes. Solo Administración o Finanzas' },
+                '500': { description: 'Error al obtener el historial de pagos' }
+            }
+        },
+        post: {
+            tags: ['Pagos'],
+            summary: 'Registra la adquisición o renovación de un plan y activa la membresía (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                id_membresia: { type: 'integer', example: 1 },
+                                monto: { type: 'number', format: 'decimal', example: 120.00 }
+                            },
+                            required: ['id_membresia', 'monto']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': {
+                    description: 'Pago registrado y membresía activada',
+                    content: {
+                        'application/json': {
+                            schema: { $ref: '#/components/schemas/Pago' }
+                        }
+                    }
+                },
+                '400': { description: 'Datos incompletos o inválidos' },
+                '403': { description: 'Permisos insuficientes. Solo Administración o Finanzas' },
+                '404': { description: 'Membresía no encontrada' },
+                '500': { description: 'Error al registrar el pago' }
+            }
+        }
+    },
     '/accesos': {
         get: {
             tags: ['Control de Acceso'],
