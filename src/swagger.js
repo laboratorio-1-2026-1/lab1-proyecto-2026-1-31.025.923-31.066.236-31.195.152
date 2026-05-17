@@ -61,7 +61,7 @@ const options = {
                         id_pagos: { type: 'integer', example: 1 },
                         id_membresia: { type: 'integer', example: 1 },
                         id_cliente: { type: 'integer', example: 2 },
-                        monto: { type: 'number', format: 'decimal', example: 120.00 },
+                        monto: { type: 'number', format: 'float', example: 120.00 },
                         fecha_pago: { type: 'string', format: 'date', example: '2026-05-16' }
                     }
                 },
@@ -80,6 +80,9 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 swaggerSpec.paths = {
+    
+    // MODULO DE IDENTIDAD Y AUTENTICACIÓN!!!!
+
     '/auth/login': {
         post: {
             tags: ['Auth'],
@@ -148,93 +151,7 @@ swaggerSpec.paths = {
             }
         }
     },
-    '/maquinas': {
-        get: {
-            tags: ['Maquinas'],
-            summary: 'Obtener inventario físico de máquinas (solo Administración, Entrenadores, Finanzas)',
-            security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: 'estado',
-                    in: 'query',
-                    required: false,
-                    schema: { type: 'string' },
-                    description: 'Filtrar por estado de la máquina'
-                },
-                {
-                    name: 'categoria',
-                    in: 'query',
-                    required: false,
-                    schema: { type: 'string' },
-                    description: 'Filtrar por categoría de máquina (nombre o id)' 
-                }
-            ],
-            responses: {
-                '200': { description: 'Inventario físico de máquinas' },
-                '403': { description: 'Permisos insuficientes' },
-                '500': { description: 'Error al obtener máquinas' }
-            }
-        },
-        post: {
-            tags: ['Maquinas'],
-            summary: 'Crear una máquina (solo admin)',
-            security: [{ bearerAuth: [] }],
-            requestBody: {
-                required: true,
-                content: {
-                    'application/json': {
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                id_categoria: { type: 'number', example: 1 },
-                                nombre_maquina: { type: 'string', example: 'Cinta de correr' },
-                                descripcion_tecnica: { type: 'string', example: 'Motor 2 HP, velocidad ajustable' },
-                                estado: { type: 'string', example: 'Activa' }
-                            },
-                            required: ['id_categoria', 'nombre_maquina', 'descripcion_tecnica', 'estado']
-                        }
-                    }
-                }
-            },
-            responses: {
-                '201': { description: 'Máquina registrada con éxito' },
-                '500': { description: 'Error al registrar máquina' }
-            }
-        }
-    },
-    '/maquinas/{id}/estado': {
-        patch: {
-            tags: ['Maquinas'],
-            summary: 'Actualizar estado de una máquina (solo admin)',
-            security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: 'id',
-                    in: 'path',
-                    required: true,
-                    schema: { type: 'integer' }
-                }
-            ],
-            requestBody: {
-                required: true,
-                content: {
-                    'application/json': {
-                        schema: {
-                            type: 'object',
-                            properties: {
-                                estado: { type: 'string', example: 'En mantenimiento' }
-                            },
-                            required: ['estado']
-                        }
-                    }
-                }
-            },
-            responses: {
-                '200': { description: 'Estado actualizado con éxito' },
-                '404': { description: 'Máquina no encontrada' }
-            }
-        }
-    },
+
     '/clientes': {
         post: {
             tags: ['Usuarios'],
@@ -345,6 +262,7 @@ swaggerSpec.paths = {
             }
         }
     },
+
     '/categorias-maquinas': {
         get: {
             tags: ['Categorias'],
@@ -354,6 +272,96 @@ swaggerSpec.paths = {
             }
         }
     },
+
+    '/maquinas': {
+        get: {
+            tags: ['Maquinas'],
+            summary: 'Obtener inventario físico de máquinas (solo Administración, Entrenadores, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'estado',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string' },
+                    description: 'Filtrar por estado de la máquina'
+                },
+                {
+                    name: 'categoria',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string' },
+                    description: 'Filtrar por categoría de máquina (nombre o id)' 
+                }
+            ],
+            responses: {
+                '200': { description: 'Inventario físico de máquinas' },
+                '403': { description: 'Permisos insuficientes' },
+                '500': { description: 'Error al obtener máquinas' }
+            }
+        },
+        post: {
+            tags: ['Maquinas'],
+            summary: 'Crear una máquina (solo admin)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                id_categoria: { type: 'number', example: 1 },
+                                nombre_maquina: { type: 'string', example: 'Cinta de correr' },
+                                descripcion_tecnica: { type: 'string', example: 'Motor 2 HP, velocidad ajustable' },
+                                estado: { type: 'string', example: 'Activa' }
+                            },
+                            required: ['id_categoria', 'nombre_maquina', 'descripcion_tecnica', 'estado']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { description: 'Máquina registrada con éxito' },
+                '500': { description: 'Error al registrar máquina' }
+            }
+        }
+    },
+    '/maquinas/{id}/estado': {
+        patch: {
+            tags: ['Maquinas'],
+            summary: 'Actualizar estado de una máquina (solo admin)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer' }
+                }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                estado: { type: 'string', example: 'En mantenimiento' }
+                            },
+                            required: ['estado']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '200': { description: 'Estado actualizado con éxito' },
+                '404': { description: 'Máquina no encontrada' }
+            }
+        }
+    },
+    
+    
     '/tickets': {
         post: {
             tags: ['Tickets'],
@@ -553,6 +561,60 @@ swaggerSpec.paths = {
         }
     },
 
+    '/accesos': {
+        get: {
+            tags: ['Control de Acceso'],
+            summary: 'Consulta la bitácora histórica de entradas (Administración)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'fecha',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string', format: 'date', example: '2026-05-13' },
+                    description: 'Filtrar bitácora por fecha'
+                },
+                {
+                    name: 'id_cliente',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'integer', example: 1 },
+                    description: 'Filtrar bitácora por cliente específico'
+                }
+            ],
+            responses: {
+                '200': { description: 'Bitácora obtenida exitosamente' },
+                '403': { description: 'Permisos insuficientes. Solo Administración' }
+            }
+        }
+    },
+    '/accesos/entrada': {
+        post: {
+            tags: ['Control de Acceso'],
+            summary: 'Registra el paso por recepción validando la membresía (Administración)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                cedula: { type: 'string', example: '31066235' }
+                            },
+                            required: ['cedula']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { description: 'Acceso autorizado. Torniquete abierto' },
+                '404': { description: 'Cliente no encontrado (ERR_CLIENTE_NO_ENCONTRADO)' },
+                '409': { description: 'Acceso denegado: Membresía inactiva (ERR_MEMBRESIA_INACTIVA)' }
+            }
+        }
+    },
+
     // ==========================================
     // PLANES DE SUSCRIPCIÓN
     // ==========================================
@@ -674,12 +736,30 @@ swaggerSpec.paths = {
                     description: 'Error interno al actualizar'
                 }
             }
+        },
+        
+        delete: {
+            tags: ['Planes de Suscripción'],
+            summary: 'Elimina un plan de suscripción del sistema (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id_plan',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'integer' },
+                    description: 'ID numérico del plan a eliminar'
+                }
+            ],
+            responses: {
+                '200': { description: 'Plan eliminado con éxito' },
+                '403': { description: 'Permisos insuficientes' },
+                '500': { description: 'Error interno o plan no encontrado' }
+            }
         }
     },
     
-    // ==========================================
-    // MÓDULO DE CONTROL DE ACCESO FÍSICO
-    // ==========================================
+    
     '/membresias': {
         get: {
             tags: ['Membresías'],
@@ -753,6 +833,7 @@ swaggerSpec.paths = {
             }
         }
     },
+
     '/membresias/cliente/{id}': {
         get: {
             tags: ['Membresías'],
@@ -782,6 +863,7 @@ swaggerSpec.paths = {
             }
         }
     },
+    
     '/membresias/{id}/estado': {
         patch: {
             tags: ['Membresías'],
@@ -889,7 +971,7 @@ swaggerSpec.paths = {
                             type: 'object',
                             properties: {
                                 id_membresia: { type: 'integer', example: 1 },
-                                monto: { type: 'number', format: 'decimal', example: 120.00 }
+                                monto: { type: 'number', format: 'float', example: 120.00 }
                             },
                             required: ['id_membresia', 'monto']
                         }
@@ -912,37 +994,23 @@ swaggerSpec.paths = {
             }
         }
     },
-    '/accesos': {
+
+    
+    // SEGUIMIENTO BIOMÉTRICO!!!
+    
+    '/evaluaciones': {
         get: {
-            tags: ['Control de Acceso'],
-            summary: 'Consulta la bitácora histórica de entradas (Administración)',
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Consulta global de evaluaciones (Administración)',
             security: [{ bearerAuth: [] }],
-            parameters: [
-                {
-                    name: 'fecha',
-                    in: 'query',
-                    required: false,
-                    schema: { type: 'string', format: 'date', example: '2026-05-13' },
-                    description: 'Filtrar bitácora por fecha'
-                },
-                {
-                    name: 'id_cliente',
-                    in: 'query',
-                    required: false,
-                    schema: { type: 'integer', example: 1 },
-                    description: 'Filtrar bitácora por cliente específico'
-                }
-            ],
             responses: {
-                '200': { description: 'Bitácora obtenida exitosamente' },
-                '403': { description: 'Permisos insuficientes. Solo Administración' }
+                '200': { description: 'Lista global de evaluaciones' },
+                '403': { description: 'Permiso denegado. Solo Administración.' }
             }
-        }
-    },
-    '/accesos/entrada': {
+        },
         post: {
-            tags: ['Control de Acceso'],
-            summary: 'Registra el paso por recepción validando la membresía (Administración)',
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Registra una nueva evaluación física (Entrenador)',
             security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
@@ -951,20 +1019,69 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                cedula: { type: 'string', example: '31066235' }
+                                id_cliente: { type: 'integer', example: 1 },
+                                peso: { type: 'number', example: 75.5 },
+                                altura: { type: 'number', example: 1.78 },
+                                porcentaje_grasa: { type: 'number', example: 15.2 },
+                                observaciones: { type: 'string', example: 'Falta resistencia aeróbica' }
                             },
-                            required: ['cedula']
+                            required: ['id_cliente', 'peso', 'altura']
                         }
                     }
                 }
             },
-            responses: {
-                '201': { description: 'Acceso autorizado. Torniquete abierto' },
-                '404': { description: 'Cliente no encontrado (ERR_CLIENTE_NO_ENCONTRADO)' },
-                '409': { description: 'Acceso denegado: Membresía inactiva (ERR_MEMBRESIA_INACTIVA)' }
-            }
+            responses: { '201': { description: 'Evaluación registrada' } }
+        }
+    },
+    '/evaluaciones/{id}': {
+        get: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Retorna el detalle completo de un registro biométrico específico (Administración, Entrenadores, Clientes)',
+            security: [{ bearerAuth: [] }],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            responses: { '200': { description: 'Detalle de la evaluación' } }
+        },
+        patch: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Actualiza parcialmente una evaluación existente (Entrenadores)',
+            security: [{ bearerAuth: [] }],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: { 
+                                peso: { type: 'number', example: 74.0 },
+                                altura: { type: 'number', example: 1.75 },
+                                porcentaje_grasa: { type: 'number', example: 14.5 },
+                                observaciones: { type: 'string', example: 'Nueva dieta asignada' }
+                            }
+                        }
+                    }
+                }
+            },
+            responses: { '200': { description: 'Evaluación actualizada' } }
+        },
+        delete: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Elimina un registro de evaluación erróneo (Entrenadores, Administración)',
+            security: [{ bearerAuth: [] }],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            responses: { '200': { description: 'Evaluación eliminada' } }
+        }
+    },
+    '/clientes/{id}/evaluaciones': {
+        get: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Consulta el historial evolutivo de un cliente específico (Entrenadores, Clientes)',
+            security: [{ bearerAuth: [] }],
+            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            responses: { '200': { description: 'Historial obtenido correctamente' } }
         }
     }
+    
     
 };
 
