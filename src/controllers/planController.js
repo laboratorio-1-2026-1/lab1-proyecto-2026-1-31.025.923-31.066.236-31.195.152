@@ -24,7 +24,7 @@ const registrarplan = async (req, res) => {
     }
     
     try {
-        const consultaInsertarNuevoPlan = `INSERT INTO planesSuscripcion (nombre, costo, descripcion, duracion_dias) VALUES (?, ?, ?, ?)`;
+        const consultaInsertarNuevoPlan = `INSERT INTO planessuscripcion (nombre_plan, costo_plan, descripcion_plan, duracion_plan) VALUES (?, ?, ?, ?)`;
         const valoresParaInsertar = [nombre, costo, descripcion, duracion_dias];
         
         const [resultadoInsercionBaseDatos] = await conexionBaseDatos.query(consultaInsertarNuevoPlan, valoresParaInsertar);
