@@ -72,4 +72,4 @@ const esClienteOAdmin = (req, res, next) => {
     }
 };
 
-module.exports = { verificarToken, esAdmin, esAdminOFinanzas, esAdminEntrenadorFinanzas, esEntrenadorOAdmin, esClienteOAdmin };
+module.exports = { verificarToken, esAdmin, esAdminOFinanzas, esAdminFinanzasOCliente, esAdminEntrenadorFinanzas, esEntrenadorOAdmin, esClienteOAdmin };
