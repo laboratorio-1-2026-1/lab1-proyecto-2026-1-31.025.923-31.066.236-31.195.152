@@ -1,12 +1,20 @@
 const conexionBaseDatos = require('../config/db');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
+
 const obtenerPlanes = async (req, res) => {
     try {
-        const consultaObtenerPlanes = 'SELECT * FROM planesSuscripcion';
+        const consultaObtenerPlanes = 'SELECT * FROM planessuscripcion';
         const [filasDePlanesEncontrados] = await conexionBaseDatos.query(consultaObtenerPlanes);
         res.status(200).json(filasDePlanesEncontrados);
     } catch (errorDelServidor){
-        res.status(500).json({error: 'Error interno al consultar.'});
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al consultar los planes."));
     }
 }
 
@@ -14,13 +22,7 @@ const registrarplan = async (req, res) => {
     const {nombre, costo, descripcion, duracion_dias} = req.body;
     
     if (!nombre || !costo || !duracion_dias){
-        const objetoErrorEstandarizado = {
-            error: true,
-            codigoInterno: "400_Datos_Incompletos",
-            mensaje: "El nombre, costo y duración del plan son obligatorios.",
-            timestamp: new Date().toISOString()
-        };
-        return res.status(400).json(objetoErrorEstandarizado); 
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "El nombre, costo y duración del plan son obligatorios.")); 
     }
     
     try {
@@ -30,45 +32,43 @@ const registrarplan = async (req, res) => {
         const [resultadoInsercionBaseDatos] = await conexionBaseDatos.query(consultaInsertarNuevoPlan, valoresParaInsertar);
 
         res.status(201).json({
-            mensaje: 'Plan de suscripción registrado con éxito',
-            idplan: resultadoInsercionBaseDatos.insertId
+            mensaje: 'Plan registrado con éxito.',
+            identificadorNuevoPlan: resultadoInsercionBaseDatos.insertId
         });
 
     } catch (errorDelServidor){
-        console.error(errorDelServidor); // Esto te ayudará a ver en la terminal si hay otro error de MySQL
-        res.status(500).json({error: 'Error interno al registrar plan.'});
+        console.error(errorDelServidor);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al registrar el plan."));
     }
 };
 
 const actualizarplan = async (req, res) => {
     const identificadorDelPlanAActualizar = req.params.id_plan;
-    const {costo, descripcion, duracion_dias} = req.body;
+    const {nombre, costo, descripcion, duracion_dias} = req.body;
 
-    if (!costo && !descripcion && !duracion_dias){ 
-        const objetoErrorEstandarizado = {
-            error: true,
-            codigoInterno: "400_Sin_Cambios",
-            mensaje: "Debe proporcionar al menos un campo para actualizar.",
-            timestamp: new Date().toISOString()
-        };
-        return res.status(400).json(objetoErrorEstandarizado); 
+    if (!nombre && !costo && !descripcion && !duracion_dias){
+        return res.status(400).json(generarError("ERR_SIN_CAMBIOS", "Debe proporcionar al menos un campo para actualizar."));
     }
-    
+
     try {
-        let consultaActualizacionParcial = 'UPDATE planesSuscripcion SET ';
+        let consultaActualizacionParcial = 'UPDATE planessuscripcion SET ';
         const valoresParaActualizar = [];
         const camposModificados = [];
-
-        if(costo){
-            camposModificados.push('costo = ?');
+        
+        if (nombre) {
+            camposModificados.push('nombre_plan = ?');
+            valoresParaActualizar.push(nombre);
+        }
+        if (costo) {
+            camposModificados.push('costo_plan = ?');
             valoresParaActualizar.push(costo);
         }
-        if(descripcion){
-            camposModificados.push('descripcion = ?'); 
+        if (descripcion) {
+            camposModificados.push('descripcion_plan = ?');
             valoresParaActualizar.push(descripcion);
         }
-        if(duracion_dias){
-            camposModificados.push('duracion_dias = ?');
+        if (duracion_dias) {
+            camposModificados.push('duracion_plan = ?');
             valoresParaActualizar.push(duracion_dias);
         }
         
@@ -79,13 +79,13 @@ const actualizarplan = async (req, res) => {
         const [resultadoActualizacionBaseDatos] = await conexionBaseDatos.query(consultaActualizacionParcial, valoresParaActualizar);
         
         if (resultadoActualizacionBaseDatos.affectedRows === 0) {
-            return res.status(404).json({ error: 'No se encontró el plan'});
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontró el plan."));
         }
         
         res.status(200).json({mensaje: 'Detalles del plan actualizados correctamente.'});
     } catch (errorDelServidor) {
         console.error(errorDelServidor);
-        res.status(500).json({error: 'Error interno al actualizar.'});
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al actualizar."));
     }
 }; 
 
@@ -97,16 +97,14 @@ const eliminarplan = async (req, res) => {
        const [resulelim] = await conexionBaseDatos.query(consultelim, idelim)
 
         if(resulelim.affectedRows === 0){
-            return res.status(500).json({error: 'Plan no encontrado.'})
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Plan no encontrado."));
         }
 
-    res.status(200).json({mensaje: 'Plan eliminado con éxito.'})
+        res.status(200).json({mensaje: 'Plan eliminado con éxito.'})
     }
     catch (errorsv){
-        res.status(500).json({error: 'Error interno al eliminar.'})
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al eliminar el plan."));
     }
-
-
 }
 
 module.exports = {

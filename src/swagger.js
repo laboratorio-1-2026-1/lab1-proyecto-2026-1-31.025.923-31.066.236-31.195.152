@@ -427,9 +427,9 @@ swaggerSpec.paths = {
         }
     },
 
-    // ==========================================
-    // MÓDULO DE GESTIÓN DEPORTIVA Y RESERVAS
-    // ==========================================
+    
+    // MÓDULO DE GESTIÓN DEPORTIVA Y RESERVAS!!!
+    
     '/disciplinas': {
         get: {
             tags: ['Gestión Deportiva'],
@@ -621,9 +621,9 @@ swaggerSpec.paths = {
         }
     },
 
-    // ==========================================
-    // PLANES DE SUSCRIPCIÓN
-    // ==========================================
+    
+    // PLANES DE SUSCRIPCIÓN!!!
+    
     '/planes': {
         get: {
             tags: ['Planes de Suscripción'],
@@ -1002,21 +1002,22 @@ swaggerSpec.paths = {
     },
 
     
-    // SEGUIMIENTO BIOMÉTRICO!!!
+   
+    // MÓDULO DE TIENDA POS E INVENTARIO!!!
     
-    '/evaluaciones': {
+    '/productos': {
         get: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Consulta global de evaluaciones (Administración)',
-            security: [{ bearerAuth: [] }],
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Lista todos los productos disponibles en la tienda (Público/Todos)',
             responses: {
-                '200': { description: 'Lista global de evaluaciones' },
-                '403': { description: 'Permiso denegado. Solo Administración.' }
+                '200': { description: 'Catálogo de productos obtenido con éxito' },
+                '404': { description: 'No hay productos registrados' },
+                '500': { description: 'Error interno del servidor' }
             }
         },
         post: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Registra una nueva evaluación física (Entrenador)',
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Registra un nuevo producto en el inventario (Administración, Finanzas)',
             security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
@@ -1025,66 +1026,131 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_cliente: { type: 'integer', example: 1 },
-                                peso: { type: 'number', example: 75.5 },
-                                altura: { type: 'number', example: 1.78 },
-                                porcentaje_grasa: { type: 'number', example: 15.2 },
-                                observaciones: { type: 'string', example: 'Falta resistencia aeróbica' }
+                                id_producto: { type: 'integer', example: 101 },
+                                nombre_producto: { type: 'string', example: 'Proteína Whey 1kg' },
+                                descripcion: { type: 'string', example: 'Suplemento de proteína sabor chocolate' },
+                                precio: { type: 'number', format: 'float', example: 25.50 },
+                                stock: { type: 'integer', example: 50 }
                             },
-                            required: ['id_cliente', 'peso', 'altura']
+                            required: ['id_producto', 'nombre_producto', 'descripcion', 'precio', 'stock']
                         }
                     }
                 }
             },
-            responses: { '201': { description: 'Evaluación registrada' } }
+            responses: {
+                '201': { description: 'Producto registrado exitosamente' },
+                '400': { description: 'Faltan datos obligatorios' },
+                '500': { description: 'Error al registrar el producto' }
+            }
         }
     },
-    '/evaluaciones/{id}': {
+    '/productos/{id_producto}': {
         get: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Retorna el detalle completo de un registro biométrico específico (Administración, Entrenadores, Clientes)',
-            security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
-            responses: { '200': { description: 'Detalle de la evaluación' } }
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Obtiene el detalle de un producto específico por su ID (Público/Todos)',
+            parameters: [
+                { name: 'id_producto', in: 'path', required: true, schema: { type: 'integer' } }
+            ],
+            responses: {
+                '200': { description: 'Detalle del producto encontrado' },
+                '400': { description: 'Falta ingresar el ID del producto' },
+                '404': { description: 'Producto no encontrado' }
+            }
         },
         patch: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Actualiza parcialmente una evaluación existente (Entrenadores)',
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Actualiza datos parciales de un producto (Administración, Finanzas)',
             security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
+            parameters: [
+                { name: 'id_producto', in: 'path', required: true, schema: { type: 'integer' } }
+            ],
             requestBody: {
                 required: true,
                 content: {
                     'application/json': {
                         schema: {
                             type: 'object',
-                            properties: { 
-                                peso: { type: 'number', example: 74.0 },
-                                altura: { type: 'number', example: 1.75 },
-                                porcentaje_grasa: { type: 'number', example: 14.5 },
-                                observaciones: { type: 'string', example: 'Nueva dieta asignada' }
+                            properties: {
+                                nombre_producto: { type: 'string', example: 'Proteína Isolatada 1kg' },
+                                descripcion: { type: 'string', example: 'Proteína cero carbohidratos (Actualizado)' },
+                                precio: { type: 'number', format: 'float', example: 28.00 },
+                                stock: { type: 'integer', example: 45 }
                             }
                         }
                     }
                 }
             },
-            responses: { '200': { description: 'Evaluación actualizada' } }
+            responses: {
+                '200': { description: 'Detalles del producto actualizados correctamente' },
+                '400': { description: 'No se enviaron campos para actualizar' },
+                '404': { description: 'Producto no encontrado' }
+            }
         },
         delete: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Elimina un registro de evaluación erróneo (Entrenadores, Administración)',
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Elimina un producto del inventario (Solo Administración)',
             security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
-            responses: { '200': { description: 'Evaluación eliminada' } }
+            parameters: [
+                { name: 'id_producto', in: 'path', required: true, schema: { type: 'integer' } }
+            ],
+            responses: {
+                '200': { description: 'Producto eliminado exitosamente' },
+                '404': { description: 'Producto no encontrado en el sistema' }
+            }
         }
     },
-    '/clientes/{id}/evaluaciones': {
+    '/ventas': {
         get: {
-            tags: ['Seguimiento Biométrico'],
-            summary: 'Consulta el historial evolutivo de un cliente específico (Entrenadores, Clientes)',
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Lista el historial completo de ventas (Administración, Finanzas)',
             security: [{ bearerAuth: [] }],
-            parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'integer' } }],
-            responses: { '200': { description: 'Historial obtenido correctamente' } }
+            responses: {
+                '200': { description: 'Historial de ventas obtenido' },
+                '404': { description: 'No se encontraron ventas registradas' }
+            }
+        },
+        post: {
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Procesa una venta y descuenta automáticamente el stock (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                id_producto: { type: 'integer', example: 101 },
+                                id_usuario: { type: 'integer', example: 2 },
+                                cantidad: { type: 'integer', example: 2 },
+                                precio_unitario: { type: 'number', format: 'float', example: 25.50 }
+                            },
+                            required: ['id_producto', 'id_usuario', 'cantidad', 'precio_unitario']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { description: 'Venta registrada con éxito y stock actualizado' },
+                '400': { description: 'Stock insuficiente o faltan datos obligatorios' },
+                '404': { description: 'Usuario o Producto no encontrados en el sistema' },
+                '500': { description: 'Error en la transacción. Se realizó ROLLBACK.' }
+            }
+        }
+    },
+    '/ventas/{id}': {
+        get: {
+            tags: ['Tienda POS e Inventario'],
+            summary: 'Obtiene el detalle de una venta específica (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID de la venta' }
+            ],
+            responses: {
+                '200': { description: 'Detalle de la venta encontrado' },
+                '400': { description: 'ID de venta necesario' },
+                '404': { description: 'No se encontraron ventas con ese ID' }
+            }
         }
     }
     
