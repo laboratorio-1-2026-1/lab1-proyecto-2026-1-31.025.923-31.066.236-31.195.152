@@ -766,6 +766,128 @@ swaggerSpec.paths = {
     },
     
     
+    // MÓDULO DE SEGUIMIENTO BIOMÉTRICO!!!
+    
+    '/evaluaciones': {
+        get: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Consulta global de evaluaciones (Solo Administración)',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                '200': { description: 'Lista global de evaluaciones biométricas obtenida con éxito' },
+                '403': { description: 'Acceso denegado. Permisos insuficientes.' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        },
+        post: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Registra una nueva evaluación física (Solo Entrenadores)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                id_cliente: { type: 'integer', example: 1 },
+                                peso: { type: 'number', format: 'float', example: 75.5 },
+                                altura: { type: 'number', format: 'float', example: 1.78 },
+                                porcentaje_grasa: { type: 'number', format: 'float', example: 15.2 },
+                                observaciones: { type: 'string', example: 'Mejora en resistencia aeróbica' }
+                            },
+                            required: ['id_cliente', 'peso', 'altura']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { description: 'Evaluación registrada con éxito' },
+                '400': { description: 'Datos incompletos (Faltan campos obligatorios)' },
+                '403': { description: 'Acceso denegado. Solo entrenadores pueden registrar.' },
+                '404': { description: 'Cliente o perfil de entrenador no encontrado' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        }
+    },
+    '/evaluaciones/{id}': {
+        get: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Retorna el detalle completo de un registro biométrico específico (Administración, Entrenadores, Clientes)',
+            description: 'Si un Cliente usa este endpoint, el sistema validará que la evaluación consultada le pertenezca.',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID de la evaluación' }
+            ],
+            responses: {
+                '200': { description: 'Detalle de la evaluación obtenido' },
+                '403': { description: 'Acceso denegado (El cliente intentó ver una evaluación de otro usuario)' },
+                '404': { description: 'Evaluación no encontrada' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        },
+        patch: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Actualiza parcialmente una evaluación existente (Solo Entrenadores)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID de la evaluación a actualizar' }
+            ],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: { 
+                                peso: { type: 'number', format: 'float', example: 74.0 },
+                                altura: { type: 'number', format: 'float', example: 1.75 },
+                                porcentaje_grasa: { type: 'number', format: 'float', example: 14.5 },
+                                observaciones: { type: 'string', example: 'Nueva dieta asignada, pérdida de grasa visible' }
+                            }
+                        }
+                    }
+                }
+            },
+            responses: {
+                '200': { description: 'Evaluación actualizada correctamente' },
+                '400': { description: 'Debe enviar al menos un campo para actualizar' },
+                '403': { description: 'Acceso denegado. Solo entrenadores.' },
+                '404': { description: 'Evaluación no encontrada' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        },
+        delete: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Elimina un registro de evaluación erróneo (Administración, Entrenadores)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID de la evaluación a eliminar' }
+            ],
+            responses: {
+                '200': { description: 'Registro de evaluación eliminado con éxito' },
+                '404': { description: 'Evaluación no encontrada' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        }
+    },
+    '/clientes/{id}/evaluaciones': {
+        get: {
+            tags: ['Seguimiento Biométrico'],
+            summary: 'Consulta el historial evolutivo de un cliente específico (Entrenadores, Clientes)',
+            description: 'Si un Cliente consulta este historial, el ID de la URL debe coincidir con su propio ID.',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                { name: 'id', in: 'path', required: true, schema: { type: 'integer' }, description: 'ID numérico del cliente' }
+            ],
+            responses: {
+                '200': { description: 'Historial obtenido correctamente' },
+                '403': { description: 'Acceso denegado (El cliente intentó ver el historial de otro)' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        }
+    },
+    
     '/membresias': {
         get: {
             tags: ['Membresías'],
