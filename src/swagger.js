@@ -517,6 +517,7 @@ swaggerSpec.paths = {
         post: {
             tags: ['Reservas'],
             summary: 'Crea una inscripción validando solapamientos y capacidad (Cliente, Administración)',
+            description: 'Si el usuario es Cliente, el sistema toma su ID del Token automáticamente (solo requiere `id_sesion`). Si el usuario es Administrador, debe proveer obligatoriamente el `id_cliente` en el body.',
             security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
@@ -525,7 +526,12 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_sesion: { type: 'integer', example: 1 }
+                                id_cliente: { 
+                                    type: 'integer', 
+                                    example: 8,
+                                    description: 'Requerido únicamente si la reserva es realizada por un Administrador.'
+                                },
+                                id_sesion: { type: 'integer', example: 1 }                                
                             },
                             required: ['id_sesion']
                         }
