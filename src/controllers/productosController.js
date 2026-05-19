@@ -1,5 +1,12 @@
-const conexionBaseDatos = require('../config/db')
+const conexionBaseDatos = require('../config/db');
 
+// Función auxiliar para el formato de error JSON (RNF03)
+const generarError = (codigo, mensaje) => ({
+    error: true,
+    codigoInterno: codigo,
+    mensaje,
+    timestamp: new Date().toISOString()
+});
 
 //GET
 const listarproductos = async (req, res) => {
@@ -8,16 +15,13 @@ const listarproductos = async (req, res) => {
         const [listaproductos] = await conexionBaseDatos.query(consultaproductos);
 
         if (listaproductos.length === 0){
-            return res.status(404).json({
-                error: true,
-                mensaje: 'No se encontraron productos registrados en la tienda.'
-            });
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontraron productos registrados en la tienda."));
         }
 
         res.status(200).json(listaproductos)
     }catch(errorsv){
         console.error(errorsv)
-        res.status(500).json({error : 'Error interno al consultar.'})
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al consultar productos."));
     }
 }
 
@@ -26,109 +30,78 @@ const registrarproducto = async (req, res) => {
     const {id_producto, nombre_producto, descripcion, precio, stock} = req.body;
 
     if (!id_producto || !nombre_producto || !descripcion || !precio || !stock){
-        const errorestandar = {
-            error: true,
-            codigo: '400_Datos_incompletos',
-            mensaje: 'Faltan uno o más datos para registrar producto.',
-            timestamp: new Date().toISOString()
-        }
-        return res.status(400).json(errorestandar)
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Faltan uno o más datos para registrar producto."));
     }
     try{
         const valoresIngresar = [id_producto, nombre_producto, descripcion, precio, stock]
         const consultareg = `INSERT INTO productostienda (id_producto, nombre_producto, descripcion, precio, stock) 
-        VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE stock = stock + VALUES(stock)`
-        const [resingresar] = await conexionBaseDatos.query(consultareg, valoresIngresar)
+        VALUES (?, ?, ?, ?, ?)`
 
-        if(resingresar.affectedRows === 1) {
-          res.status(201).json({mensaje: 'Producto nuevo registrado exitosamente.'}) 
-        } else if (resingresar.affectedRows === 2) {
-            res.status(200).json({mensaje: 'El producto ya existía. El stock ha sido sumado exitosamente.'})
-        } else {
-            res.status(200).json({mensaje: 'Operación realizada (Sin cambios detectados).'})
-        }
+        const [resultadoreg] = await conexionBaseDatos.query(consultareg, valoresIngresar);
 
-    } catch(errorsv) {
-        console.error("Error en registro/upsert de producto:", errorsv);
-        res.status(500).json({ error: 'Error interno al procesar el producto.' });
-    } 
+        res.status(201).json({
+            mensaje: 'Producto registrado de manera exitosa',
+            Identificadorproducto: resultadoreg.insertId
+        })
+    } catch(errorsv){
+        console.error("Error en la insercion del producto:", errorsv);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al procesar los datos."));
+    }
 }
 
-//GET
 const listaporid = async (req, res) => {
     const idprod = req.params.id_producto;
-    if(!idprod){
-        const errorestandar = {
-            error: true,
-            codigo: '400_Datos_incompletos', 
-            mensaje: 'La ID del producto es necesaria para listar',
-            timestamp: new Date().toISOString()
-        }
-        return res.status(400).json(errorestandar)
-    }
-    try {
-        const consultaid = 'SELECT * FROM productostienda WHERE id_producto = ?'
-        const [listaporid] = await conexionBaseDatos.query(consultaid, [idprod])
 
-        if (listaporid.length === 0) {
-            return res.status(404).json({error: 'Producto no encontrado.'})
-        }
-        return res.status(200).json(listaporid[0])
-    } catch(errorsv){
-        console.error("Error en la consulta del producto por ID:", errorsv)
-        res.status(500).json({error: 'Error interno al procesar la solicitud.'})
-    }
-}
-
-//DELETE
-const elimprod = async (req, res) => {
-    const idprod = req.params.id_producto;
     if(!idprod){
-        const errorestandar = {
-            error: true,
-            codigo: '400_Datos_incompletos',
-            mensaje: 'La ID del producto es necesaria para eliminar',
-            timestamp: new Date().toISOString()
-        }
-        return res.status(400).json(errorestandar)
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Falta ingresar el ID del producto."));
     }
+
     try{
-        const consultaelim = 'DELETE FROM productostienda WHERE id_producto = ?'
-        const [reselim] = await conexionBaseDatos.query(consultaelim, [idprod])
-
-        if (reselim.affectedRows === 0) {
-            return res.status(404).json({error: 'El producto no existe.'})
+        const consulid = `SELECT * FROM productostienda WHERE id_producto = ?`
+        const [resid] = await conexionBaseDatos.query(consulid, [idprod])
+        
+        if(resid.length === 0){
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontro el producto solicitado."));
         }
         
-        res.status(200).json({mensaje: 'Producto eliminado exitosamente.'})
+        res.status(200).json(resid)
     }catch(errorsv){
-        console.error("Error en la consulta del producto:", errorsv)
-        res.status(500).json({error: 'Error interno al procesar la solicitud.'})
+        console.error("Error en la busqueda:", errorsv);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al procesar los datos."));
     }
 }
 
-//PATCH
+const elimprod = async (req, res) => {
+    const idprod = req.params.id_producto;
+
+    if(!idprod){
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "El ID es necesario."));
+    }
+    try {
+        const consulelim = `DELETE FROM productostienda WHERE id_producto = ?`
+        const [reselelim] = await conexionBaseDatos.query(consulelim, [idprod])
+        
+        if(reselelim.affectedRows === 0){
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Producto no encontrado en el sistema."));
+        }
+
+        res.status(200).json({mensaje : "Producto eliminado exitosamente"})
+    }catch(errorsv){
+        console.error("Error en la solicitud:", errorsv);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al procesar la solicitud."));
+    }
+}
+
 const actprod = async (req, res) => {
     const idprod = req.params.id_producto;
     const {nombre_producto, descripcion, precio, stock} = req.body;
-    
+
     if(!idprod){
-        const errorestandar = {
-            error: true,
-            codigo: '400_Datos_incompletos',
-            mensaje: 'La ID del producto es necesaria para actualizar',
-            timestamp: new Date().toISOString()
-        };
-        return res.status(400).json(errorestandar);
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Se necesita el ID del producto para actualizar."));
     }
 
-    if (!nombre_producto && !descripcion && !precio && !stock) {
-        return res.status(400).json({
-            error: true,
-            codigo: "400_Datos_incompletos",
-            mensaje: "Debe proporcionar al menos un campo para actualizar.",
-            timestamp: new Date().toISOString()
-        });
+    if (!nombre_producto && !descripcion && !precio && !stock){
+        return res.status(400).json(generarError("ERR_SIN_CAMBIOS", "Debe proporcionar al menos un campo para actualizar."));
     }
 
     try {
@@ -160,14 +133,14 @@ const actprod = async (req, res) => {
         const [resact] = await conexionBaseDatos.query(consultaact, valoract);
                 
         if (resact.affectedRows === 0) {
-            return res.status(404).json({ error: 'No se encontró el producto'});
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontró el producto."));
         }
                 
         res.status(200).json({mensaje: 'Detalles del producto actualizados correctamente.'});
 
     } catch(errorsv){
         console.error("Error en la actualización del producto:", errorsv);
-        res.status(500).json({error: 'Error interno al procesar la solicitud.'});
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error interno al procesar la solicitud."));
     }
 }
 

@@ -16,7 +16,7 @@ const membresiasRoutes = require('./routes/membresiasRoutes');
 const pagosRoutes = require('./routes/pagosRoutes');
 const evaluacionRoutes = require('./routes/evaluacionRoutes'); // AÑADIDO POR CALO CALITO CALO  
 const productosRoutes = require('./routes/productosRoutes') // - Nelson
-const ventasRoutes = require('./routes/ventasroutes') // -Nelson
+const ventasRoutes = require('./routes/ventasRoutes') // -Nelson
 
 const app = express();
 
@@ -37,7 +37,7 @@ app.use('/api/v1', membresiasRoutes);
 app.use('/api/v1', pagosRoutes);
 app.use('/api/v1', evaluacionRoutes); // AÑADIDO POR CALO CALITO CALO
 app.use('/api/v1', productosRoutes);
-app.use('/api/v1', ventasRoutes)
+app.use('/api/v1', ventasRoutes);
 
 app.get('/', (req, res) => {
     res.send('Servidor SmartGym V1 corriendo');
