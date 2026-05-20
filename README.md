@@ -9,8 +9,6 @@ SmartGym API
 	cp .env.example .env
 	```
 
-- El proyecto ya carga variables con `dotenv` (comprueba `src/app.js`).
-- No subas el archivo `.env` al repositorio. El `.gitignore` ya incluye `.env`.
 
 - Variables usadas (ejemplo): `PORT`, `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET`.
 
