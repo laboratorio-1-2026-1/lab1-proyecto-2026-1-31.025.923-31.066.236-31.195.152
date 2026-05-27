@@ -1135,10 +1135,9 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_membresia: { type: 'integer', example: 1 },
-                                monto: { type: 'number', format: 'float', example: 120.00 }
+                                id_membresia: { type: 'integer', example: 1 }
                             },
-                            required: ['id_membresia', 'monto']
+                            required: ['id_membresia']
                         }
                     }
                 }

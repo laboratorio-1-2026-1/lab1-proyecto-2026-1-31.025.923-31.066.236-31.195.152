@@ -10,16 +10,20 @@ const generarError = (codigo, mensaje) => ({
 
 const crearPago = async (req, res) => {
     try {
-        const { id_membresia, monto } = req.body;
+        const { id_membresia } = req.body;
 
-        if (!id_membresia || monto == null) {
-            return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "id_membresia y monto son obligatorios."));
+        if (!id_membresia) {
+            return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "id_membresia es obligatorio."));
         }
 
         const fechaPago = new Date().toISOString().split('T')[0];
 
+        // Obtener la membresía y el costo del plan asociado
         const [membresiaRows] = await db.query(
-            'SELECT id_membresias FROM MembresiasCliente WHERE id_membresias = ? LIMIT 1',
+            `SELECT mc.id_membresias, mc.id_plan, p.costo_plan
+             FROM MembresiasCliente mc
+             JOIN planessuscripcion p ON mc.id_plan = p.id_plan
+             WHERE mc.id_membresias = ? LIMIT 1`,
             [id_membresia]
         );
 
@@ -27,9 +31,12 @@ const crearPago = async (req, res) => {
             return res.status(404).json(generarError("ERR_MEMBRESIA_NO_ENCONTRADA", "No se encontró la membresía especificada."));
         }
 
+        const costoPlan = Number(membresiaRows[0].costo_plan);
+
+        // Registrar el pago usando el precio del plan
         const [result] = await db.query(
             'INSERT INTO pagos (id_membresia, monto, fecha_pago) VALUES (?, ?, ?)',
-            [id_membresia, monto, fechaPago]
+            [id_membresia, costoPlan, fechaPago]
         );
 
         await db.query(
@@ -41,7 +48,7 @@ const crearPago = async (req, res) => {
             message: 'Pago registrado y membresía activada.',
             id_pagos: result.insertId,
             id_membresia: Number(id_membresia),
-            monto,
+            monto: costoPlan,
             fecha_pago: fechaPago
         });
     } catch (error) {
