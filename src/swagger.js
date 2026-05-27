@@ -1270,7 +1270,7 @@ swaggerSpec.paths = {
         },
         post: {
             tags: ['Tienda POS e Inventario'],
-            summary: 'Procesa una venta y descuenta automáticamente el stock (Administración, Finanzas)',
+            summary: 'Procesa una venta con múltiples productos y descuenta automáticamente el stock (Administración, Finanzas)',
             security: [{ bearerAuth: [] }],
             requestBody: {
                 required: true,
@@ -1279,18 +1279,47 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_producto: { type: 'integer', example: 101 },
-                                id_usuario: { type: 'integer', example: 2 },
-                                cantidad: { type: 'integer', example: 2 },
-                                precio_unitario: { type: 'number', format: 'float', example: 25.50 }
+                                id_usuario: { type: 'integer', example: 37 },
+                                items: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            id_producto: { type: 'integer', example: 101 },
+                                            cantidad: { type: 'integer', example: 2 }
+                                        },
+                                        required: ['id_producto', 'cantidad']
+                                    }
+                                }
                             },
-                            required: ['id_producto', 'id_usuario', 'cantidad', 'precio_unitario']
+                            required: ['id_usuario', 'items'],
+                            example: {
+                                id_usuario: 37,
+                                items: [
+                                    { id_producto: 101, cantidad: 2 },
+                                    { id_producto: 102, cantidad: 1 }
+                                ]
+                            }
                         }
                     }
                 }
             },
             responses: {
-                '201': { description: 'Venta registrada con éxito y stock actualizado' },
+                '201': {
+                    description: 'Venta registrada con éxito y stock actualizado',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    mensaje: { type: 'string' },
+                                    id_venta: { type: 'integer' },
+                                    total: { type: 'number', format: 'float' }
+                                }
+                            }
+                        }
+                    }
+                },
                 '400': { description: 'Stock insuficiente o faltan datos obligatorios' },
                 '404': { description: 'Usuario o Producto no encontrados en el sistema' },
                 '500': { description: 'Error en la transacción. Se realizó ROLLBACK.' }
