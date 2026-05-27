@@ -270,6 +270,43 @@ swaggerSpec.paths = {
             responses: {
                 '200': { description: 'Catálogo de categorías de máquinas' }
             }
+        },
+        post: {
+            tags: ['Categorias'],
+            summary: 'Crear una nueva categoría de máquinas (solo Administradores)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                nombre_categoria: { type: 'string', example: 'Cardiovasculares' }
+                            },
+                            required: ['nombre_categoria']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { description: 'Categoría creada con éxito',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    id_categoria: { type: 'integer', example: 5 },
+                                    nombre_categoria: { type: 'string', example: 'Cardiovasculares' }
+                                }
+                            }
+                        }
+                    }
+                },
+                '400': { description: 'Datos incompletos o inválidos' },
+                '409': { description: 'La categoría ya existe' },
+                '500': { description: 'Error interno del servidor' }
+            }
         }
     },
 
