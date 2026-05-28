@@ -10,7 +10,7 @@ const generarError = (codigo, mensaje) => ({
 
 const crearPago = async (req, res) => {
     try {
-        const { id_membresia } = req.body;
+        const { id_membresia, id_plan } = req.body;
 
         if (!id_membresia) {
             return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "id_membresia es obligatorio."));
@@ -18,9 +18,9 @@ const crearPago = async (req, res) => {
 
         const fechaPago = new Date().toISOString().split('T')[0];
 
-        // Obtener la membresía y el costo del plan asociado
+        // Obtener la membresía actual y su plan asociado
         const [membresiaRows] = await db.query(
-            `SELECT mc.id_membresias, mc.id_plan, p.costo_plan
+            `SELECT mc.id_membresias, mc.id_plan AS plan_actual, p.costo_plan, p.nombre_plan
              FROM MembresiasCliente mc
              JOIN planessuscripcion p ON mc.id_plan = p.id_plan
              WHERE mc.id_membresias = ? LIMIT 1`,
@@ -31,17 +31,34 @@ const crearPago = async (req, res) => {
             return res.status(404).json(generarError("ERR_MEMBRESIA_NO_ENCONTRADA", "No se encontró la membresía especificada."));
         }
 
-        const costoPlan = Number(membresiaRows[0].costo_plan);
+        let planSeleccionadoId = membresiaRows[0].plan_actual;
+        let costoPlan = Number(membresiaRows[0].costo_plan);
+        let nombrePlan = membresiaRows[0].nombre_plan;
 
-        // Registrar el pago usando el precio del plan
+        if (id_plan) {
+            const [planRows] = await db.query(
+                'SELECT id_plan, costo_plan, nombre_plan FROM planessuscripcion WHERE id_plan = ? LIMIT 1',
+                [id_plan]
+            );
+
+            if (planRows.length === 0) {
+                return res.status(404).json(generarError("ERR_PLAN_NO_ENCONTRADO", "No se encontró el plan especificado."));
+            }
+
+            planSeleccionadoId = planRows[0].id_plan;
+            costoPlan = Number(planRows[0].costo_plan);
+            nombrePlan = planRows[0].nombre_plan;
+        }
+
+        // Registrar el pago usando el precio del plan seleccionado
         const [result] = await db.query(
             'INSERT INTO pagos (id_membresia, monto, fecha_pago) VALUES (?, ?, ?)',
             [id_membresia, costoPlan, fechaPago]
         );
 
         await db.query(
-            'UPDATE MembresiasCliente SET estado = ?, fecha_inicio = ? WHERE id_membresias = ?',
-            ['Activa', fechaPago, id_membresia]
+            'UPDATE MembresiasCliente SET id_plan = ?, estado = ?, fecha_inicio = ? WHERE id_membresias = ?',
+            [planSeleccionadoId, 'Activa', fechaPago, id_membresia]
         );
 
         res.status(201).json({
@@ -49,6 +66,7 @@ const crearPago = async (req, res) => {
             id_pagos: result.insertId,
             id_membresia: Number(id_membresia),
             monto: costoPlan,
+            plan_nombre: nombrePlan,
             fecha_pago: fechaPago
         });
     } catch (error) {
@@ -62,9 +80,10 @@ const getPagos = async (req, res) => {
         const { fecha_desde, fecha_hasta, id_cliente } = req.query;
 
         let query = `
-            SELECT p.id_pagos, p.id_membresia, p.monto, p.fecha_pago, mc.id_cliente
+            SELECT p.id_pagos, p.id_membresia, p.monto, p.fecha_pago, mc.id_cliente, p2.nombre_plan AS plan_nombre
             FROM pagos p
             JOIN MembresiasCliente mc ON p.id_membresia = mc.id_membresias
+            JOIN planessuscripcion p2 ON mc.id_plan = p2.id_plan
             WHERE 1=1
         `;
         const params = [];

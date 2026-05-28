@@ -62,6 +62,7 @@ const options = {
                         id_membresia: { type: 'integer', example: 1 },
                         id_cliente: { type: 'integer', example: 2 },
                         monto: { type: 'number', format: 'float', example: 120.00 },
+                        plan_nombre: { type: 'string', example: 'Plan Trimestral' },
                         fecha_pago: { type: 'string', format: 'date', example: '2026-05-16' }
                     }
                 },
@@ -1135,7 +1136,8 @@ swaggerSpec.paths = {
                         schema: {
                             type: 'object',
                             properties: {
-                                id_membresia: { type: 'integer', example: 1 }
+                                id_membresia: { type: 'integer', example: 1 },
+                                id_plan: { type: 'integer', example: 4, description: 'ID del plan que se desea pagar y asignar a la membresía' }
                             },
                             required: ['id_membresia']
                         }
