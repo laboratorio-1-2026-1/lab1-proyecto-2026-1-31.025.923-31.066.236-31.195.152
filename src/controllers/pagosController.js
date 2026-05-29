@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Formato estándar de error (RNF03)
+// Formato estándar de error 
 const generarError = (codigo, mensaje) => ({
     error: true,
     codigoInterno: codigo,

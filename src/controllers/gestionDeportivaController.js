@@ -46,6 +46,13 @@ const getSesiones = async (req, res) => {
         query += ' ORDER BY s.fecha ASC, s.hora_inicio ASC';
         
         const [rows] = await db.query(query, params);
+
+        //Para sesiones con fecha o disciplina inválida
+
+        if (rows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontraron sesiones programadas bajo la fecha o disciplina especificadas."))
+        }
+
         res.json(rows);
     } catch (error) {
         console.error(error);

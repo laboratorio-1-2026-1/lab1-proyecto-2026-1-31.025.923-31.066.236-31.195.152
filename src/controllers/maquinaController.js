@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Función auxiliar para el formato de error JSON (RNF03)
+// Función auxiliar para el formato de error JSON 
 const generarError = (codigo, mensaje) => ({
     error: true,
     codigoInterno: codigo,
@@ -39,7 +39,14 @@ const getMaquinas = async (req, res) => {
             ${whereSql}
         `;
 
+        
         const [rows] = await db.query(sql, params);
+
+        //Para estados o categorías inválidas
+        if (rows.length === 0){
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontraron máquinas con la categoría o estado especificados."))
+        }
+
         res.json(rows);
     } catch (error) {
         console.error(error);

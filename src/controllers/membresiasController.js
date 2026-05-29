@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Formato estándar de error (RNF03)
+// Formato estándar de error 
 const generarError = (codigo, mensaje) => ({
     error: true,
     codigoInterno: codigo,
@@ -26,6 +26,12 @@ const getMembresias = async (req, res) => {
         query += ' ORDER BY fecha_inicio DESC';
 
         const [rows] = await db.query(query, params);
+
+        //Para membresías con estado inválido
+        if (rows.length === 0){
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No se encontraron membresías con el estado especificado."))
+        }
+
         res.json(rows);
     } catch (error) {
         console.error(error);

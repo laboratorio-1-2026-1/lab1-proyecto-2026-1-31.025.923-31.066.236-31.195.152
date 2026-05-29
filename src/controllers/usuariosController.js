@@ -1,7 +1,7 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-// Función auxiliar para el formato de error JSON (RNF03)
+// Función auxiliar para el formato de error JSON 
 const generarError = (codigo, mensaje) => ({
     error: true,
     codigoInterno: codigo,

@@ -1,6 +1,5 @@
 const db = require('../config/db');
 
-// Función auxiliar (RNF03)
 const generarError = (codigo, mensaje) => ({
     error: true,
     codigoInterno: codigo,
