@@ -21,6 +21,31 @@ const register = async (req, res) => {
     }
 
     try {
+
+        const consultaDuplicados = 'SELECT cedula, email FROM Usuarios WHERE cedula = ? OR email = ? LIMIT 1';
+        const [usuarioExistente] = await db.query(consultaDuplicados, [cedula, email]);
+
+        if (usuarioExistente.length > 0) {
+            const conflicto = usuarioExistente[0];
+            let mensajeConflicto = "El usuario ya está registrado.";
+            
+            //Datos normalizados para evitar incongruencias con la base de datos
+            const cedulaDB = String(conflicto.cedula);
+            const cedulaReq = String(cedula);
+            const emailDB = String(conflicto.email).toLowerCase();
+            const emailReq = String(email).toLowerCase();
+            
+            if (cedulaDB === cedulaReq && emailDB === emailReq) {
+                mensajeConflicto = "La cédula y el correo electrónico ya están registrados en el sistema.";
+            } else if (cedulaDB === cedulaReq) {
+                mensajeConflicto = `La cédula ${cedula} ya se encuentra registrada a otro usuario.`;
+            } else if (emailDB === emailReq) {
+                mensajeConflicto = `El correo ${email} ya está en uso por otra cuenta.`;
+            }
+
+            return res.status(409).json(generarError("ERR_USUARIO_DUPLICADO", mensajeConflicto));
+        }
+
         // Encriptar la contraseña
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
