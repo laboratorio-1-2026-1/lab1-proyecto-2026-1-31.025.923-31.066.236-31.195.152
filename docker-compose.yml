@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  smartgym-api:
+    build: .
+    container_name: smartgym-api
+    restart: always  # <--- Salva la vida: Si falla por velocidad, lo intenta de nuevo
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DB_HOST=smartgym-db  # <--- Ahora sí buscará en el contenedor correcto
+      - DB_USER=root
+      - DB_PASSWORD=12345678
+      - DB_NAME=smartgym
+      - JWT_SECRET=super_clave_secreta_smartgym_2026
+    depends_on:
+      smartgym-db:
+        condition: service_healthy
+
+  smartgym-db:
+    image: mysql:8.0
+    container_name: smartgym-db
+    command: --lower_case_table_names=1
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_DATABASE=smartgym
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
