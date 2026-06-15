@@ -247,6 +247,15 @@ swaggerSpec.paths = {
             tags: ['Usuarios'],
             summary: 'Listar usuarios (solo admin)',
             security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'rol',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'string' },
+                    description: 'Filtrar usuarios por nombre de rol'
+                }
+            ],
             responses: {
                 '200': { description: 'Lista de usuarios' },
                 '403': { description: 'Permisos insuficientes' }
@@ -425,6 +434,46 @@ swaggerSpec.paths = {
     
     
     '/tickets': {
+        get: {
+            tags: ['Tickets'],
+            summary: 'Listar tickets de mantenimiento (Administración, Finanzas)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id_maquina',
+                    in: 'query',
+                    required: false,
+                    schema: { type: 'integer' },
+                    description: 'Filtrar tickets por id de la máquina'
+                }
+            ],
+            responses: {
+                '200': {
+                    description: 'Listado de tickets de mantenimiento',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'array',
+                                items: {
+                                    type: 'object',
+                                    properties: {
+                                        id_ticket: { type: 'integer', example: 1 },
+                                        id_maquina: { type: 'integer', example: 1 },
+                                        id_usuario: { type: 'integer', example: 1 },
+                                        fecha_falla: { type: 'string', format: 'date', example: '2026-05-12' },
+                                        descripcion_falla: { type: 'string', example: 'Motor no arranca' },
+                                        fecha_resolucion: { type: 'string', format: 'date', example: '2026-05-13' },
+                                        costo_reparacion: { type: 'number', example: 150 },
+                                        estado: { type: 'string', example: 'Abierto' },
+                                        nombre_maquina: { type: 'string', example: 'Cinta de correr' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         post: {
             tags: ['Tickets'],
             summary: 'Crear ticket de mantenimiento (solo admin)',

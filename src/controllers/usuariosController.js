@@ -134,10 +134,18 @@ const createStaff = async (req, res) => {
 };
 
 const listUsuarios = async (req, res) => {
+    const { rol } = req.query;
+
     try {
-        const [rows] = await db.query(
-            'SELECT u.id_usuario, u.cedula, u.nombre, u.apellido, u.email, u.telefono, r.nombre_rol AS rol FROM Usuarios u LEFT JOIN Roles r ON u.id_rol = r.id_rol'
-        );
+        let sql = 'SELECT u.id_usuario, u.cedula, u.nombre, u.apellido, u.email, u.telefono, r.nombre_rol AS rol FROM Usuarios u LEFT JOIN Roles r ON u.id_rol = r.id_rol';
+        const params = [];
+
+        if (rol) {
+            sql += ' WHERE r.nombre_rol = ?';
+            params.push(rol);
+        }
+
+        const [rows] = await db.query(sql, params);
         res.json(rows);
     } catch (error) {
         console.error(error);

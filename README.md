@@ -68,6 +68,16 @@ copy .env.example .env
 - `DB_NAME`: nombre de la base de datos
 - `JWT_SECRET`: clave secreta para firmar tokens JWT
 
+> Al dockerizar, el proyecto crea un usuario admin por defecto con estas credenciales:
+>
+> ```json
+> {
+>   "email": "yoge@gym.com",
+>   "password": "mi_clave_segura"
+> }
+>
+> Este es el único usuario admin disponible en la instalación Docker por defecto.
+
 > Nota: como el repositorio ya incluye `package.json` y `package-lock.json`, no necesitas ejecutar `npm init -y` ni instalar dependencias una por una. Solo usa `npm install` si trabajas sin Docker.
 
 > Si tienes un error con Docker, puedes detener y limpiar los contenedores y volúmenes con:
@@ -141,48 +151,23 @@ JWT_SECRET=tu_secreto_jwt
 - `POST /api/v1/entrenadores` — crear entrenador (admin)
 - `POST /api/v1/usuarios/staff` — crear staff (admin)
 - `GET /api/v1/usuarios` — listar usuarios (admin)
+  - admite filtro opcional: `?rol=<nombre_rol>`
 - `GET /api/v1/roles` — listar roles (admin)
-
-### Planes
-
-- `GET /api/v1/planes` — obtener planes
-- `POST /api/v1/planes` — registrar plan (admin/finanzas)
-- `PATCH /api/v1/planes/:id_plan` — actualizar plan (admin/finanzas)
-- `DELETE /api/v1/planes/:id_plan` — eliminar plan (admin/finanzas)
-
-### Membresías
-
-- `GET /api/v1/membresias` — listar membresías (admin/finanzas)
-- `GET /api/v1/membresias/cliente/:id` — ver membresía de cliente
-- `PATCH /api/v1/membresias/:id/estado` — actualizar estado (admin)
-- `POST /api/v1/membresias` — crear membresía (admin)
-
-### Pagos
-
-- `GET /api/v1/pagos` — historial de pagos (admin/finanzas)
-- `POST /api/v1/pagos` — registrar pago (admin/finanzas)
-
-> Al registrar un pago, la API calcula el monto según el plan asociado a la membresía. Si se envía `id_plan`, la membresía se actualiza al nuevo plan pagado.
-
-### Seguimiento biométrico
-
-- `GET /api/v1/evaluaciones` — listar evaluaciones biométricas (admin)
-- `GET /api/v1/evaluaciones/:id` — ver evaluación por id (admin/entrenadores/clientes)
-- `GET /api/v1/clientes/:id/evaluaciones` — historial de evaluaciones del cliente (entrenadores/clientes)
-- `POST /api/v1/evaluaciones` — registrar evaluación biométrica (entrenador)
-- `PATCH /api/v1/evaluaciones/:id` — actualizar evaluación (entrenador)
-- `DELETE /api/v1/evaluaciones/:id` — eliminar evaluación (entrenador/admin)
+- `DELETE /api/v1/usuarios/:id` — eliminar usuario (admin)
 
 ### Máquinas y categorías
 
-- `GET /api/v1/` (máquinas) — listar máquinas
-- `POST /api/v1/` (máquinas) — crear máquina (admin)
-- `PATCH /api/v1/:id/estado` — actualizar estado de máquina (admin)
-- `GET /api/v1/categorias-maquinas` — listar categorías
+- `GET /api/v1/maquinas` — listar máquinas
+  - admite filtros opcionales: `?estado=<Estado>&categoria=<id_categoria>`
+- `POST /api/v1/maquinas` — crear máquina (admin)
+- `PATCH /api/v1/maquinas/:id/estado` — actualizar estado de máquina (admin)
+- `GET /api/v1/categorias-maquinas` — listar categorías de máquinas
 - `POST /api/v1/categorias-maquinas` — crear categoría (admin)
 
 ### Tickets de mantenimiento
 
+- `GET /api/v1/tickets` — listar tickets de mantenimiento (admin/finanzas)
+  - admite filtro opcional: `?id_maquina=<id_maquina>`
 - `POST /api/v1/tickets` — crear ticket (admin)
 - `PATCH /api/v1/tickets/:id/resolver` — resolver ticket (admin/finanzas)
 
@@ -195,24 +180,47 @@ JWT_SECRET=tu_secreto_jwt
 - `POST /api/v1/reservas` — crear reserva (cliente/admin)
 - `DELETE /api/v1/reservas/:id` — eliminar reserva (cliente/admin)
 
-### Accesos
+### Membresías
 
-- `GET /api/v1/accesos` — historial de accesos (admin)
-- `POST /api/v1/accesos/entrada` — registrar entrada (admin)
+- `GET /api/v1/membresias` — listar membresías (admin/finanzas)
+  - admite filtro opcional: `?estado=<Estado>`
+- `GET /api/v1/membresias/cliente/:id` — ver membresía de cliente
+- `PATCH /api/v1/membresias/:id/estado` — actualizar estado (admin)
+- `POST /api/v1/membresias` — crear membresía (admin)
 
-### Inventario y tienda
+### Pagos
+
+- `GET /api/v1/pagos` — historial de pagos (admin/finanzas)
+- `POST /api/v1/pagos` — registrar pago (admin/finanzas)
+  - si se envía `id_plan`, la membresía se actualiza al plan seleccionado.
+
+### Evaluaciones biométricas
+
+- `GET /api/v1/evaluaciones` — listar evaluaciones biométricas (admin)
+- `GET /api/v1/evaluaciones/:id` — ver evaluación por id (admin/entrenadores/clientes)
+- `GET /api/v1/clientes/:id/evaluaciones` — historial de evaluaciones del cliente (entrenadores/clientes)
+- `POST /api/v1/evaluaciones` — registrar evaluación biométrica (entrenador)
+- `PATCH /api/v1/evaluaciones/:id` — actualizar evaluación (entrenador)
+- `DELETE /api/v1/evaluaciones/:id` — eliminar evaluación (entrenador/admin)
+
+### Inventario y productos
 
 - `GET /api/v1/productos` — listar productos
 - `POST /api/v1/productos` — crear producto (admin/finanzas)
-- `GET /api/v1/productos/:id_producto` — obtener por id
-- `DELETE /api/v1/productos/:id_producto` — eliminar producto (admin)
+- `GET /api/v1/productos/:id_producto` — obtener producto por id
 - `PATCH /api/v1/productos/:id_producto` — actualizar producto (admin/finanzas)
+- `DELETE /api/v1/productos/:id_producto` — eliminar producto (admin)
 
 ### Ventas
 
 - `POST /api/v1/ventas` — registrar venta (admin/finanzas)
 - `GET /api/v1/ventas` — listar ventas (admin/finanzas)
 - `GET /api/v1/ventas/:id` — obtener venta por id (admin/finanzas)
+
+### Accesos
+
+- `GET /api/v1/accesos` — historial de accesos (admin)
+- `POST /api/v1/accesos/entrada` — registrar entrada (admin)
 
 ## Roles y permisos
 

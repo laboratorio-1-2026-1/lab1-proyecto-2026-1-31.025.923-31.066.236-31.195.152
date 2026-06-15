@@ -47,6 +47,28 @@ const createTicket = async (req, res) => {
     }
 };
 
+const getTickets = async (req, res) => {
+    const { id_maquina } = req.query;
+
+    try {
+        let query = 'SELECT * FROM ticketsmantenimiento';
+        const params = [];
+
+        if (id_maquina) {
+            query += ' WHERE id_maquina = ?';
+            params.push(id_maquina);
+        }
+
+        query += ' ORDER BY fecha_falla DESC';
+
+        const [rows] = await db.query(query, params);
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener los tickets de mantenimiento."));
+    }
+};
+
 const resolveTicket = async (req, res) => {
     const { id } = req.params;
     const { fecha_resolucion, costo_reparacion } = req.body;
@@ -99,4 +121,4 @@ const resolveTicket = async (req, res) => {
     }
 };
 
-module.exports = { createTicket, resolveTicket };
+module.exports = { createTicket, getTickets, resolveTicket };
