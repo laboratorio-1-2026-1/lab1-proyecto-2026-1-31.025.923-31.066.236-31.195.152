@@ -550,6 +550,45 @@ swaggerSpec.paths = {
                 '200': { description: 'Catálogo de disciplinas obtenido con éxito' },
                 '403': { description: 'Acceso denegado, token faltante o inválido' }
             }
+        },
+        post: {
+            tags: ['Gestión Deportiva'],
+            summary: 'Registra una nueva disciplina (Administración)',
+            security: [{ bearerAuth: [] }],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                nombre_disciplina: { type: 'string', example: 'Crossfit' },
+                                descripcion: { type: 'string', example: 'Entrenamiento funcional de alta intensidad' }
+                            },
+                            required: ['nombre_disciplina']
+                        }
+                    }
+                }
+            },
+            responses: {
+                '201': { 
+                    description: 'Disciplina registrada con éxito',
+                    content: {
+                        'application/json': {
+                            schema: {
+                                type: 'object',
+                                properties: {
+                                    message: { type: 'string', example: 'Disciplina registrada con éxito' },
+                                    id_disciplina: { type: 'integer', example: 5 }
+                                }
+                            }
+                        }
+                    }
+                },
+                '400': { description: 'Datos incompletos o inválidos (Falta nombre_disciplina)' },
+                '409': { description: 'Conflicto: La disciplina ya se encuentra registrada (ERR_DUPLICADO)' },
+                '500': { description: 'Error interno del servidor' }
+            }
         }
     },
     '/sesiones': {

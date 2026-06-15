@@ -19,6 +19,36 @@ const getDisciplinas = async (req, res) => {
     }
 };
 
+const createDisciplina = async (req, res) => {
+    const { nombre_disciplina, descripcion } = req.body;
+
+    // Validación de entrada (400)
+    if (!nombre_disciplina) {
+        return res.status(400).json(generarErrorEstructurado("Bad Request", "ERR_DATOS_INCOMPLETOS", "El nombre de la disciplina es obligatorio."));
+    }
+
+    try {
+        const [existente] = await db.query('SELECT id_disciplina FROM Disciplinas WHERE nombre_disciplina = ? LIMIT 1', [nombre_disciplina]);
+        
+        if (existente.length > 0) {
+            return res.status(409).json(generarErrorEstructurado("Conflict", "ERR_DUPLICADO", `La disciplina '${nombre_disciplina}' ya se encuentra registrada en el sistema.`));
+        }
+
+        const [result] = await db.query(
+            'INSERT INTO Disciplinas (nombre_disciplina, descripcion) VALUES (?, ?)',
+            [nombre_disciplina, descripcion || null]
+        );
+
+        res.status(201).json({ 
+            message: 'Disciplina registrada con éxito', 
+            id_disciplina: result.insertId 
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error interno al registrar la disciplina." });
+    }
+};
+
 // SESIONES PROGRAMADAS
 const getSesiones = async (req, res) => {
     try {
@@ -206,6 +236,7 @@ const deleteReserva = async (req, res) => {
 
 module.exports = {
     getDisciplinas,
+    createDisciplina,
     getSesiones,
     createSesion,
     getReservas,

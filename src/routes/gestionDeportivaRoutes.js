@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const gestionDeportivaController = require('../controllers/gestionDeportivaController');
-const { verificarToken, esEntrenadorOAdmin, esClienteOAdmin } = require('../middlewares/authMiddleware');
+const { verificarToken, esEntrenadorOAdmin, esClienteOAdmin, esAdmin } = require('../middlewares/authMiddleware');
 
 // Disciplinas
 router.get('/disciplinas', verificarToken, gestionDeportivaController.getDisciplinas);
+router.post('/disciplinas', verificarToken, esAdmin, gestionDeportivaController.createDisciplina)
 
 // Sesiones
 router.get('/sesiones', verificarToken, gestionDeportivaController.getSesiones);
