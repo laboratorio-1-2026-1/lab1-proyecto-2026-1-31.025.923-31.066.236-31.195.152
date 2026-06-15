@@ -15,26 +15,51 @@ API REST para la gestión de un gimnasio inteligente con acceso por roles, gesti
 
 ## Requisitos
 
+El proyecto se puede ejecutar con Docker o localmente.
+
+Opción Docker (recomendado):
+- Docker
+- Docker Compose
+
+Opción local:
 - Node.js 18+ (o compatible)
 - npm
-- MySQL 
+- MySQL
 
 ## Instalación
 
 1. Clona el repositorio o descarga el proyecto.
-2. En la raíz del proyecto, instala dependencias:
+
+2. Si vas a usar Docker, no necesitas instalar dependencias manualmente en tu máquina.
+   Solo ejecuta:
+
+```bash
+docker-compose up --build
+```
+
+   Docker construirá la imagen y hará `npm install` dentro del contenedor.
+
+3. Si quieres ejecutar el proyecto localmente sin Docker, en la raíz del proyecto ejecuta:
 
 ```bash
 npm install
 ```
 
-3. Crea el archivo de configuración de entorno:
+   Eso instalará todas las dependencias listadas en `package.json`.
+
+4. Crea el archivo de configuración de entorno:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Configura tus datos en `.env`:
+   En Windows, puedes copiar el archivo con el Explorador o usar:
+
+```powershell
+copy .env.example .env
+```
+
+5. Configura tus datos en `.env`:
 
 - `PORT`: puerto donde correrá el servidor
 - `DB_HOST`: host de la base de datos
@@ -43,16 +68,19 @@ cp .env.example .env
 - `DB_NAME`: nombre de la base de datos
 - `JWT_SECRET`: clave secreta para firmar tokens JWT
 
-> Si estás configurando el proyecto desde cero y no tienes `package.json`, ejecuta estos comandos iniciales:
+> Nota: como el repositorio ya incluye `package.json` y `package-lock.json`, no necesitas ejecutar `npm init -y` ni instalar dependencias una por una. Solo usa `npm install` si trabajas sin Docker.
+
+> Si tienes un error con Docker, puedes detener y limpiar los contenedores y volúmenes con:
 >
 > ```bash
-> npm init -y
-> npm install express mysql2 dotenv bcryptjs jsonwebtoken cors
-> npm install --save-dev nodemon
-> npm install swagger-ui-express swagger-jsdoc
+docker-compose down -v
 > ```
-> 
-> Luego usa `npm install` para restaurar dependencias en futuras instalaciones.
+>
+> Luego corrige el problema y vuelve a ejecutar:
+>
+> ```bash
+docker-compose up --build
+```
 
 ## Uso
 
