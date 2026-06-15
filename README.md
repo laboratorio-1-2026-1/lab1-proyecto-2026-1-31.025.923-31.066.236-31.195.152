@@ -71,14 +71,14 @@ copy .env.example .env
 > Nota: como el repositorio ya incluye `package.json` y `package-lock.json`, no necesitas ejecutar `npm init -y` ni instalar dependencias una por una. Solo usa `npm install` si trabajas sin Docker.
 
 > Si tienes un error con Docker, puedes detener y limpiar los contenedores y volúmenes con:
->
-> ```bash
+
+```bash
 docker-compose down -v
-> ```
->
+```
+
 > Luego corrige el problema y vuelve a ejecutar:
->
-> ```bash
+
+```bash
 docker-compose up --build
 ```
 
