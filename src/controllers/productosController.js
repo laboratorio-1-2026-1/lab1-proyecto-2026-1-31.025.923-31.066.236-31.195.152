@@ -29,11 +29,17 @@ const listarproductos = async (req, res) => {
 const registrarproducto = async (req, res) => {
     const {id_producto, nombre_producto, descripcion, precio, stock} = req.body;
 
-    if (!id_producto || !nombre_producto || !descripcion || !precio || !stock){
+    if (id_producto == null || !nombre_producto || !descripcion || precio == null || stock == null) {
         return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Faltan uno o más datos para registrar producto."));
     }
+
+    const precioNumeric = Number(precio);
+    if (Number.isNaN(precioNumeric) || precioNumeric < 0) {
+        return res.status(400).json(generarError("ERR_PRECIO_INVALIDO", "El precio del producto no puede ser negativo."));
+    }
+
     try{
-        const valoresIngresar = [id_producto, nombre_producto, descripcion, precio, stock]
+        const valoresIngresar = [id_producto, nombre_producto, descripcion, precioNumeric, stock]
         const consultareg = `INSERT INTO productostienda (id_producto, nombre_producto, descripcion, precio, stock) 
         VALUES (?, ?, ?, ?, ?)`
 
@@ -100,8 +106,13 @@ const actprod = async (req, res) => {
         return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Se necesita el ID del producto para actualizar."));
     }
 
-    if (!nombre_producto && !descripcion && !precio && !stock){
+    if (!nombre_producto && !descripcion && precio == null && stock == null){
         return res.status(400).json(generarError("ERR_SIN_CAMBIOS", "Debe proporcionar al menos un campo para actualizar."));
+    }
+
+    const precioNumeric = precio != null ? Number(precio) : null;
+    if (precio != null && (Number.isNaN(precioNumeric) || precioNumeric < 0)) {
+        return res.status(400).json(generarError("ERR_PRECIO_INVALIDO", "El precio del producto no puede ser negativo."));
     }
 
     try {
@@ -117,9 +128,9 @@ const actprod = async (req, res) => {
             camposmod.push('descripcion = ?');
             valoract.push(descripcion);
         }
-        if(precio) {
+        if(precio != null) {
             camposmod.push('precio = ?');
-            valoract.push(precio);
+            valoract.push(precioNumeric);
         }
         if(stock){
             camposmod.push('stock = ?');

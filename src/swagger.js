@@ -253,6 +253,30 @@ swaggerSpec.paths = {
             }
         }
     },
+
+    '/usuarios/{id}': {
+        delete: {
+            tags: ['Usuarios'],
+            summary: 'Eliminar usuario por id (solo admin)',
+            security: [{ bearerAuth: [] }],
+            parameters: [
+                {
+                    name: 'id',
+                    in: 'path',
+                    description: 'Identificador del usuario a eliminar',
+                    required: true,
+                    schema: { type: 'integer' }
+                }
+            ],
+            responses: {
+                '200': { description: 'Usuario eliminado correctamente' },
+                '400': { description: 'Datos incompletos o inválidos' },
+                '403': { description: 'Permisos insuficientes' },
+                '404': { description: 'Usuario no encontrado' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        }
+    },
     '/roles': {
         get: {
             tags: ['Usuarios'],

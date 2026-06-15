@@ -55,6 +55,11 @@ const resolveTicket = async (req, res) => {
         return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "fecha_resolucion y costo_reparacion son obligatorios para resolver el ticket."));
     }
 
+    const costoNumeric = Number(costo_reparacion);
+    if (Number.isNaN(costoNumeric) || costoNumeric < 0) {
+        return res.status(400).json(generarError("ERR_COSTO_INVALIDO", "El costo de reparación no puede ser negativo."));
+    }
+
     try {
         const [ticketRows] = await db.query(
             'SELECT id_maquina FROM ticketsmantenimiento WHERE id_ticket = ? LIMIT 1',

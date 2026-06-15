@@ -155,10 +155,58 @@ const listRoles = async (req, res) => {
     }
 };
 
+// DELETE /api/v1/usuarios/:id
+const deleteUsuario = async (req, res) => {
+    const idUsuarioParam = req.params.id;
+
+    if (!idUsuarioParam) {
+        return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "Se requiere id_usuario para eliminar el usuario."));
+    }
+
+    const idUsuario = Number(idUsuarioParam);
+
+    if (req.user && req.user.id_usuario === idUsuario) {
+        return res.status(403).json(generarError("ERR_AUTOELIMINACION", "No puedes eliminar tu propia cuenta."));
+    }
+
+    try {
+        const [userRows] = await db.query('SELECT id_rol FROM Usuarios WHERE id_usuario = ? LIMIT 1', [idUsuario]);
+        if (userRows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Usuario no encontrado."));
+        }
+
+        const userRole = userRows[0].id_rol;
+
+        await db.query('START TRANSACTION');
+
+        if (userRole === 4) { // Cliente
+            await db.query('DELETE FROM Clientes WHERE id_usuario = ?', [idUsuario]);
+        } else if (userRole === 3) { // Entrenador
+            await db.query('DELETE FROM Entrenadores WHERE id_usuario = ?', [idUsuario]);
+        }
+
+        const [delRes] = await db.query('DELETE FROM Usuarios WHERE id_usuario = ?', [idUsuario]);
+
+        if (delRes.affectedRows === 0) {
+            await db.query('ROLLBACK');
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "Usuario no encontrado al intentar eliminar."));
+        }
+
+        await db.query('COMMIT');
+
+        res.status(200).json({ mensaje: 'Usuario eliminado correctamente', id_usuario: idUsuario });
+    } catch (error) {
+        console.error(error);
+        try { await db.query('ROLLBACK'); } catch (e) {}
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al eliminar el usuario."));
+    }
+};
+
 module.exports = {
     registerCliente,
     createEntrenador,
     createStaff,
     listUsuarios,
     listRoles
+    ,deleteUsuario
 };

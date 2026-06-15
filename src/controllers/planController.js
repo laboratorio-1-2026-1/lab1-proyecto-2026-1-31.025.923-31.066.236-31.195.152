@@ -20,14 +20,19 @@ const obtenerPlanes = async (req, res) => {
 
 const registrarplan = async (req, res) => {
     const {nombre, costo, descripcion, duracion_dias} = req.body;
-    
-    if (!nombre || !costo || !duracion_dias){
+
+    if (!nombre || costo == null || !duracion_dias){
         return res.status(400).json(generarError("ERR_DATOS_INCOMPLETOS", "El nombre, costo y duración del plan son obligatorios.")); 
     }
-    
+
+    const costoNumeric = Number(costo);
+    if (Number.isNaN(costoNumeric) || costoNumeric < 0) {
+        return res.status(400).json(generarError("ERR_COSTO_INVALIDO", "El costo del plan no puede ser negativo."));
+    }
+
     try {
         const consultaInsertarNuevoPlan = `INSERT INTO planessuscripcion (nombre_plan, costo_plan, descripcion_plan, duracion_plan) VALUES (?, ?, ?, ?)`;
-        const valoresParaInsertar = [nombre, costo, descripcion, duracion_dias];
+        const valoresParaInsertar = [nombre, costoNumeric, descripcion, duracion_dias];
         
         const [resultadoInsercionBaseDatos] = await conexionBaseDatos.query(consultaInsertarNuevoPlan, valoresParaInsertar);
 

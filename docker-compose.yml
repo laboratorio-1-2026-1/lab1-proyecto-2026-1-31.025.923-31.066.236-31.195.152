@@ -11,7 +11,7 @@ services:
       - PORT=3000
       - DB_HOST=smartgym-db  # <--- Ahora sí buscará en el contenedor correcto
       - DB_USER=root
-      - DB_PASSWORD=12345678
+      - DB_PASSWORD=enriquelles19
       - DB_NAME=smartgym
       - JWT_SECRET=super_clave_secreta_smartgym_2026
     depends_on:
@@ -24,7 +24,7 @@ services:
     command: --lower_case_table_names=1
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=12345678
+      - MYSQL_ROOT_PASSWORD=enriquelles19
       - MYSQL_DATABASE=smartgym
     ports:
       - "3307:3306"
