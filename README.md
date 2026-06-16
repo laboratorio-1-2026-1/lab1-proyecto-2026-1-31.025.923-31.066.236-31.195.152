@@ -47,6 +47,12 @@ npm install
 
    Eso instalará todas las dependencias listadas en `package.json`.
 
+   Para inicializar la base de datos localmente, puedes usar el script SQL incluido en el proyecto:
+
+```text
+database/init.sql
+```
+
 4. Crea el archivo de configuración de entorno:
 
 ```bash
@@ -174,6 +180,7 @@ JWT_SECRET=tu_secreto_jwt
 ### Gestión deportiva
 
 - `GET /api/v1/disciplinas` — listar disciplinas
+- `POST /api/v1/disciplinas` — publica disciplinas
 - `GET /api/v1/sesiones` — listar sesiones
 - `POST /api/v1/sesiones` — crear sesión (admin/entrenador)
 - `GET /api/v1/reservas` — listar reservas (cliente/admin)
