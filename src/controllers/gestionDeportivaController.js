@@ -157,6 +157,9 @@ const getReservas = async (req, res) => {
         }
 
         const [rows] = await db.query(query, params);
+        if (rows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No hay reservas registradas."));
+        }
         res.json(rows);
     } catch (error) {
         console.error(error);
