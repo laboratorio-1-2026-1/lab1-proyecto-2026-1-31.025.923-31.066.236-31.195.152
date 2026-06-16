@@ -63,6 +63,9 @@ const getTickets = async (req, res) => {
 
         const [rows] = await db.query(query, params);
         res.json(rows);
+          if (rows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No hay tickets."));
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener los tickets de mantenimiento."));
