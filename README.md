@@ -81,7 +81,7 @@ copy .env.example .env
 >   "email": "yoge@gym.com",
 >   "password": "mi_clave_segura"
 > }
->
+
 > Este es el único usuario admin disponible en la instalación Docker por defecto.
 
 > Nota: como el repositorio ya incluye `package.json` y `package-lock.json`, no necesitas ejecutar `npm init -y` ni instalar dependencias una por una. Solo usa `npm install` si trabajas sin Docker.
