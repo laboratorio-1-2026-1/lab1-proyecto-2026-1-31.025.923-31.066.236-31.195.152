@@ -33,6 +33,11 @@ const getAccesos = async (req, res) => {
         query += ' ORDER BY ca.fecha_entrada DESC, ca.hora_entrada DESC';
 
         const [rows] = await db.query(query, params);
+        
+        if (rows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No existen accesos registrados."));
+        }
+        
         res.json(rows);
     } catch (error) {
         console.error(error);

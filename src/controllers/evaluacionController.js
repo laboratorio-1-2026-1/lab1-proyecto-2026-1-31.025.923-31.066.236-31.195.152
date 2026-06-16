@@ -22,6 +22,9 @@ const getEvaluacionesGlobales = async (req, res) => {
             ORDER BY e.fecha_evaluacion DESC
         `;
         const [rows] = await db.query(query);
+        if (rows.length === 0) {
+            return res.status(404).json(generarError("ERR_NO_ENCONTRADO", "No hay evaluaciones registradas."));
+        }
         res.json(rows);
     } catch (error) {
         console.error(error);
