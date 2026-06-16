@@ -153,6 +153,36 @@ const listUsuarios = async (req, res) => {
     }
 };
 
+const getClientes = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT c.id_cliente, u.id_usuario, u.cedula, u.nombre, u.apellido, u.email, u.telefono
+             FROM Clientes c
+             JOIN Usuarios u ON c.id_usuario = u.id_usuario`
+        );
+
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener la lista de clientes."));
+    }
+};
+
+const getEntrenadores = async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT e.id_entrenador, u.id_usuario, u.cedula, u.nombre, u.apellido, u.email, u.telefono, e.especialidad
+             FROM Entrenadores e
+             JOIN Usuarios u ON e.id_usuario = u.id_usuario`
+        );
+
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(generarError("ERR_SERVIDOR", "Error al obtener la lista de entrenadores."));
+    }
+};
+
 const listRoles = async (req, res) => {
     try {
         const [rows] = await db.query('SELECT id_rol, nombre_rol FROM Roles');
@@ -215,6 +245,8 @@ module.exports = {
     createEntrenador,
     createStaff,
     listUsuarios,
-    listRoles
-    ,deleteUsuario
+    listRoles,
+    getClientes,
+    getEntrenadores,
+    deleteUsuario
 };

@@ -154,6 +154,16 @@ swaggerSpec.paths = {
     },
 
     '/clientes': {
+        get: {
+            tags: ['Usuarios'],
+            summary: 'Listar clientes (solo admin)',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                '200': { description: 'Lista de clientes' },
+                '403': { description: 'Permisos insuficientes' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        },
         post: {
             tags: ['Usuarios'],
             summary: 'Registrar un cliente',
@@ -183,6 +193,16 @@ swaggerSpec.paths = {
         }
     },
     '/entrenadores': {
+        get: {
+            tags: ['Usuarios'],
+            summary: 'Listar entrenadores (solo admin)',
+            security: [{ bearerAuth: [] }],
+            responses: {
+                '200': { description: 'Lista de entrenadores' },
+                '403': { description: 'Permisos insuficientes' },
+                '500': { description: 'Error interno del servidor' }
+            }
+        },
         post: {
             tags: ['Usuarios'],
             summary: 'Crear un entrenador (solo admin)',

@@ -153,7 +153,9 @@ JWT_SECRET=tu_secreto_jwt
 
 ### Usuarios y roles
 
+- `GET /api/v1/clientes` — busca clientes (admin)
 - `POST /api/v1/clientes` — registrar cliente
+- `GET /api/v1/entrenadores` — busca entrenadores (admin)
 - `POST /api/v1/entrenadores` — crear entrenador (admin)
 - `POST /api/v1/usuarios/staff` — crear staff (admin)
 - `GET /api/v1/usuarios` — listar usuarios (admin)

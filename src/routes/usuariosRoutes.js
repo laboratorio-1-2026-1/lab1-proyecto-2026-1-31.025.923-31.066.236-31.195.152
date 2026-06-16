@@ -5,6 +5,8 @@ const { verificarToken, esAdmin } = require('../middlewares/authMiddleware');
 
 router.post('/clientes', usuariosController.registerCliente);
 router.post('/entrenadores', verificarToken, esAdmin, usuariosController.createEntrenador);
+router.get('/clientes', verificarToken, esAdmin, usuariosController.getClientes);
+router.get('/entrenadores', verificarToken, esAdmin, usuariosController.getEntrenadores);
 router.post('/usuarios/staff', verificarToken, esAdmin, usuariosController.createStaff);
 router.get('/usuarios', verificarToken, esAdmin, usuariosController.listUsuarios);
 router.get('/roles', verificarToken, esAdmin, usuariosController.listRoles);
